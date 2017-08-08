@@ -6,5 +6,6 @@ RUN chmod +x /tmp/app/install_amd64.sh \
 &&  sh /tmp/app/install_amd64.sh
 
 FROM alpine:3.6
+RUN apk add --no-cache ca-certificates
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["espipe"]
