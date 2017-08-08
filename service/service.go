@@ -6,14 +6,10 @@ import (
 	dispatcher "github.com/khezen/espipe/dispatcher"
 	errors "github.com/khezen/espipe/errors"
 	model "github.com/khezen/espipe/model"
-	"github.com/khezen/espipe/uuid"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
-
-const httpHeaderXRequestID = "REQUEST-ID"
 
 // Service - Contains data required for serving web REST requests
 type Service struct {
@@ -53,25 +49,11 @@ func New(config configuration.Configuration, quit chan error) (*Service, error) 
 	}, nil
 }
 
-func (s *Service) ensureRequestID(w http.ResponseWriter, r *http.Request) (string, error) {
-	rid := r.Header.Get(httpHeaderXRequestID)
-	if rid == "" {
-		rid = uuid.New()
-	}
-	w.Header().Del(httpHeaderXRequestID)
-	w.Header().Add(httpHeaderXRequestID, rid)
-
-	return rid, nil
-}
-
 // ListenAndServe - Blocks the current goroutine, opens an HTTP port and serves the web REST requests
 func (s *Service) ListenAndServe() {
-
 	http.HandleFunc("/espipe/health/", s.handleHealthCheck)
 	http.HandleFunc("/espipe/", s.handleRequests)
-
 	fmt.Printf("opening espipe at %v\n", s.config.EndPoint)
-
 	s.quit <- http.ListenAndServe(s.config.EndPoint, nil)
 }
 
@@ -82,74 +64,42 @@ func (s *Service) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
 
 // POST /espipe/{template}/{type}
 func (s *Service) handleRequests(w http.ResponseWriter, r *http.Request) {
-
-	rid, err := s.ensureRequestID(w, r)
-	if err != nil {
-		rid = ""
-	}
-
 	if r.Method != http.MethodPost {
-		s.serveError(w, r, errors.ErrWrongMethod, rid)
+		s.serveError(w, r, errors.ErrWrongMethod)
 	}
-
 	urlSplit := strings.Split(strings.Trim(strings.ToLower(r.URL.Path), "/"), "/")
 	if len(urlSplit) != 3 {
-		s.serveError(w, r, errors.ErrPathNotFound, rid)
+		s.serveError(w, r, errors.ErrPathNotFound)
 		return
 	}
-
 	templateName := configuration.TemplateName(urlSplit[1])
 	template, ok := s.availableTemplates[templateName]
 	if !ok {
-		s.serveError(w, r, errors.ErrPathNotFound, rid)
+		s.serveError(w, r, errors.ErrPathNotFound)
 		return
 	}
 	docType := model.DocumentType(urlSplit[2])
 	if _, ok := s.availableResources[template.Name][docType]; !ok {
-		s.serveError(w, r, errors.ErrPathNotFound, rid)
+		s.serveError(w, r, errors.ErrPathNotFound)
 		return
 	}
-
 	// NO ERRORS -> DISPATCH
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		s.serveError(w, r, err, rid)
+		s.serveError(w, r, err)
 		return
 	}
-
 	document, err := model.NewDocument(&template, docType, reqBody)
 	if err != nil {
-		s.serveError(w, r, err, rid)
+		s.serveError(w, r, err)
 		return
 	}
-
 	s.Dispatcher.Dispatch(document)
-
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write([]byte{})
 	if err != nil {
-		s.serveError(w, r, err, rid)
+		s.serveError(w, r, err)
 		return
 	}
-}
-
-func (s *Service) serveError(w http.ResponseWriter, r *http.Request, err error, rid string) {
-
-	switch err {
-	case errors.ErrPathNotFound:
-		w.WriteHeader(http.StatusNotFound)
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(w, err.Error())
-		return
-	case errors.ErrWrongMethod:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(w, err.Error())
-		return
-	}
-	fmt.Printf("%v", err.Error())
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	io.WriteString(w, err.Error())
 }
