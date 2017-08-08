@@ -70,7 +70,7 @@ func (s *Service) ListenAndServe() {
 	http.HandleFunc("/espipe/health/", s.handleHealthCheck)
 	http.HandleFunc("/espipe/", s.handleRequests)
 
-	fmt.Printf("opening Elasticsearch logger service at %v\n", s.config.EndPoint)
+	fmt.Printf("opening espipe at %v\n", s.config.EndPoint)
 
 	s.quit <- http.ListenAndServe(s.config.EndPoint, nil)
 }
