@@ -37,7 +37,6 @@ rm -rf /usr/local/go/
 rm -rf /root/go/
 rm -rf /tmp
 apk del wget tar git ca-certificates
-apk cache clean
 echo "done!"
 
 echo "instalation complete!"

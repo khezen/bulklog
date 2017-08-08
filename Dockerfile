@@ -11,4 +11,4 @@ COPY --from=0 /entrypoint.sh /entrypoint.sh
 COPY --from=0 /bin/espipe /bin/espipe
 RUN apk add --no-cache ca-certificates
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["espipe"]
+CMD ["/bin/espipe"]
