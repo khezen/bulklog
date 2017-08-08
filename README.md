@@ -28,8 +28,8 @@ GET /espipe/health | 200 OK | healthcheck
     "templates": [{
             "name": "logs",
             "bufferLen": 1000,
-            "bufferSizeKB": 2000,
-            "timerMS": 1000,
+            "bufferSizeKB": 20000,
+            "timerMS": 5000,
             "body": {...}
         }
     ]
