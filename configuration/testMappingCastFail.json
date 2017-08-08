@@ -1,0 +1,43 @@
+{
+  "endpoint": ":5006",
+  "elasticsearch": "http://127.0.0.1:9200",
+  "templates": [{
+    "name": "logs",
+    "bufferLen": 1000,
+    "bufferSizeKB": 2000,
+    "timerMS": 3000,
+    "body": {
+      "template": "logs-*",
+      "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0
+      },
+      "mappings": [{
+          "log": {
+            "properties": {
+              "@timestamp": {
+                "type": "date",
+                "format": "yyyy-MM-dd-hh:mm:ss.SSSZ"
+              },
+              "service": {
+                "type": "keyword"
+              },
+              "level": {
+                "type": "keyword"
+              },
+              "message": {
+                "type": "text"
+              },
+              "customer_id": {
+                "type": "keyword"
+              },
+              "request_id": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }]
+}

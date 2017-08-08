@@ -1,0 +1,88 @@
+{
+  "endpoint": ":5000",
+  "elasticsearch": "http://localhost:9200",
+  "templates": [{
+      "name": "logs",
+      "bufferLen": 1000,
+      "bufferSizeKB": 2000,
+      "timerMS": 3000,
+      "body": {
+        "template": "logs-*",
+        "settings": {
+          "number_of_shards": 1,
+          "number_of_replicas": 0
+        },
+        "mappings": {
+          "log": {
+            "properties": {
+              "service": {
+                "type": "keyword"
+              },
+              "level": {
+                "type": "keyword"
+              },
+              "message": {
+                "type": "text"
+              },
+              "request_id": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "web",
+      "bufferLen": 1000,
+      "bufferSizeKB": 2000,
+      "timerMS": 3000,
+      "body": {
+        "template": "web-*",
+        "settings": {
+          "number_of_shards": 1,
+          "number_of_replicas": 0
+        },
+        "mappings": {
+          "trace": {
+            "properties": {
+              "service": {
+                "type": "keyword"
+              },
+              "level": {
+                "type": "keyword"
+              },
+              "request_id": {
+                "type": "keyword"
+              },
+              "client_ip": {
+                "type": "keyword"
+              },
+              "host": {
+                "type": "keyword"
+              },
+              "path": {
+                "type": "text"
+              },
+              "method": {
+                "type": "keyword"
+              },
+              "request_body": {
+                "type": "text"
+              },
+              "status_code": {
+                "type": "keyword"
+              },
+              "response_body": {
+                "type": "text"
+              },
+              "response_in_seconds": {
+                "type": "double"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

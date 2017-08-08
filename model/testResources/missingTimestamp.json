@@ -1,0 +1,7 @@
+{
+    "service": "{service}",
+    "level": "warning",
+    "message": "test",
+    "customer_id": "{cid}",
+    "request_id": "{rid}"
+}
