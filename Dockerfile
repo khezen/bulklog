@@ -1,11 +1,11 @@
 FROM golang:1.8.3-alpine3.6 as build
-LABEL description="espipe, elasticsearch, pipeline"
-MAINTAINER Guillaume Simonneau
 COPY ./ /tmp/app
 RUN chmod +x /tmp/app/install_amd64.sh \
 &&  sh /tmp/app/install_amd64.sh
 
 FROM alpine:3.6
+LABEL description="espipe, elasticsearch, pipeline"
+MAINTAINER Guillaume Simonneau
 COPY --from=build /default/config.json /default/config.json
 COPY --from=build /entrypoint.sh /entrypoint.sh
 COPY --from=build /bin/espipe /bin/espipe
