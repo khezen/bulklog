@@ -1,5 +1,4 @@
 {
-  "endpoint": ":5000",
   "elasticsearch": "http://localhost:9200",
   "templates": [{
       "name": "logs",

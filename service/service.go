@@ -2,14 +2,17 @@ package service
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	configuration "github.com/khezen/espipe/configuration"
 	dispatcher "github.com/khezen/espipe/dispatcher"
 	errors "github.com/khezen/espipe/errors"
 	model "github.com/khezen/espipe/model"
-	"io/ioutil"
-	"net/http"
-	"strings"
 )
+
+const endpoint = ":5000"
 
 // Service - Contains data required for serving web REST requests
 type Service struct {
@@ -53,8 +56,8 @@ func New(config configuration.Configuration, quit chan error) (*Service, error) 
 func (s *Service) ListenAndServe() {
 	http.HandleFunc("/espipe/health/", s.handleHealthCheck)
 	http.HandleFunc("/espipe/", s.handleRequests)
-	fmt.Printf("opening espipe at %v\n", s.config.EndPoint)
-	s.quit <- http.ListenAndServe(s.config.EndPoint, nil)
+	fmt.Printf("opening espipe at %v\n", endpoint)
+	s.quit <- http.ListenAndServe(endpoint, nil)
 }
 
 // GET /espipe/health

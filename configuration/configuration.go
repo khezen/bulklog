@@ -8,7 +8,6 @@ import (
 
 // Configuration contains all configuration for the logger
 type Configuration struct {
-	EndPoint      string        `json:"endpoint"`
 	Elasticsearch string        `json:"elasticsearch"`
 	Templates     []Template    `json:"templates"`
 	AWSAuth       *AWSAuth      `json:"AWSAuth,omitempty"`
