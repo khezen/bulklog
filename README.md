@@ -23,7 +23,6 @@ GET /espipe/health | 200 OK | healthcheck
 # Configure
 ```json
 {
-    "endpoint": ":5000",
     "elasticsearch": "http://localhost:9200",
     "templates": [{
             "name": "logs",
@@ -65,7 +64,6 @@ The mapping itself is flexible and is schema-free. New fields are automatically 
 *espipe* supports AWS authentication for Amazon Elasticsearch Service
 ```json
 {
-  "endpoint": ":5000",
   "elasticsearch": "https://host.eu-west-1.es.amazonaws.com",
   "AWSAuth": {
     "accessKeyId": "changeme",
@@ -82,7 +80,6 @@ The mapping itself is flexible and is schema-free. New fields are automatically 
 
 ```json
 {
-    "endpoint": ":5000",
     "elasticsearch": "http://localhost:9200",
     "basicAuth":{
       "username": "elastic",
