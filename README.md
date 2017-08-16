@@ -11,7 +11,7 @@
 `docker run -p 5000:5000 -v /etc/espipe:/etc/espipe khezen/espipe:5`
 ## Supported tags and respective `Dockerfile` links
 * `5`, `latest`
- [(5/Dockerfile)](https://github.com/Khezen/espipe/blob/5/Dockerfile) [![](https://images.microbadger.com/badges/image/khezen/espipe.svg)](https://hub.docker.com/r/khezen/espipe/)
+ [(5/Dockerfile)](https://github.com/khezen/espipe/blob/5/Dockerfile) [![](https://images.microbadger.com/badges/image/khezen/espipe.svg)](https://hub.docker.com/r/khezen/espipe/)
 
 # Services
 
@@ -108,4 +108,4 @@ GET /espipe/health | 200 OK | healthcheck
 
 # User Feedback
 ## Issues
-If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/Khezen/espipe/issues).
+If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/espipe/issues).
