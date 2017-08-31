@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/khezen/espipe/configuration"
 	"github.com/khezen/espipe/service"
 )
