@@ -17,21 +17,16 @@ func main() {
 	if err != nil {
 		config, err = configuration.LoadConfig("config.json")
 		if err != nil {
-			fatal(err)
+			panic(err)
 		}
 	}
 
 	service, err := service.New(config, quit)
 	if err != nil {
-		fatal(err)
+		panic(err)
 	}
 
 	go service.ListenAndServe()
 	err = <-quit
-	fatal(err)
-}
-
-func fatal(err error) {
-	fmt.Println(err)
-	panic(err) // Nothing more we can do ... just panic ... result in returning error code
+	panic(err)
 }
