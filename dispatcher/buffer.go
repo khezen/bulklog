@@ -85,7 +85,7 @@ func (b *Buffer) Gophers() func() {
 				}
 				break
 			case msg := <-b.Append:
-				go b.append(msg)
+				b.append(msg)
 				break
 			}
 		}
