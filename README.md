@@ -94,13 +94,15 @@ The mapping itself is flexible and is schema-free. New fields are automatically 
 
 * See [default config.json](https://github.com/khezen/espipe/raw/master/config.json).
 
+* See [Go logger client](https://godoc.org/github.com/khezen/espipe/log) working with indexes defined in the [default config.json](https://github.com/khezen/espipe/raw/master/config.json).
+
 Request|Response|Description
 ---|---|---
 POST /espipe/logs/log JSON body | 200 OK | indexes JSON body as `log` in Elasticsearch `logs-yyyy.MM.dd`
 POST /espipe/web/trace JSON body | 200 OK | indexes JSON body as `trace` in Elasticsearch `web-yyyy.MM.dd`
 GET /espipe/health | 200 OK | healthcheck
 
-* See [Go logger client](https://godoc.org/github.com/khezen/espipe/log) working with indexes defined in the [default config.json](https://github.com/khezen/espipe/raw/master/config.json).
+
 
 
 
