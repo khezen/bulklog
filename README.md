@@ -46,9 +46,8 @@ GET /espipe/health | 200 OK | healthcheck
 
 
 * *espipe* indexes documents in bulk requests. For each index, *espipe* triggers bulk requests by:
-  * number of documents >= template.bufferLen
   * bulk size >= template.bufferSizeKB
-  * timer ticks (period given by template.timerMS)
+  * ticker(period=template.timerMS)
 
 ### template.body
 template.body takes the template **settings** and **mappings** with types definition.
