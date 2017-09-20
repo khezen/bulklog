@@ -26,7 +26,6 @@ GET /espipe/health | 200 OK | healthcheck
     "elasticsearch": "http://localhost:9200",
     "templates": [{
             "name": "logs",
-            "bufferLen": 1000,
             "bufferSizeKB": 20000,
             "timerMS": 5000,
             "body": {...}
