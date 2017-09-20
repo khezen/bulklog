@@ -2,11 +2,12 @@ package dispatcher
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	configuration "github.com/khezen/espipe/configuration"
 	elastic "github.com/khezen/espipe/elastic"
 	model "github.com/khezen/espipe/model"
-	"sync"
-	"time"
 )
 
 // Buffer is related to a template
@@ -21,6 +22,8 @@ type Buffer struct {
 	mutex     sync.RWMutex
 }
 
+const bufferLimit = 1000
+
 // NewBuffer creates a new buffer
 func NewBuffer(template *configuration.Template, client *elastic.Client) *Buffer {
 	return &Buffer{
@@ -28,7 +31,7 @@ func NewBuffer(template *configuration.Template, client *elastic.Client) *Buffer
 		client,
 		make(chan model.Document),
 		make(chan error),
-		make([]model.Document, 0, template.BufferLen),
+		make([]model.Document, 0),
 		0,
 		sync.RWMutex{},
 	}
@@ -39,7 +42,7 @@ func (b *Buffer) append(msg model.Document) {
 	defer b.mutex.Unlock()
 	b.documents = append(b.documents, msg)
 	b.sizeKB += float64(len(msg.Body)) / 1000
-	if b.sizeKB >= b.Template.BufferSizeKB || len(b.documents) >= b.Template.BufferLen {
+	if b.sizeKB >= b.Template.BufferSizeKB || len(b.documents) >= bufferLimit {
 		err := b.flush()
 		if err != nil {
 			fmt.Println(err)
@@ -65,7 +68,7 @@ func (b *Buffer) flush() error {
 	if err != nil {
 		return err
 	}
-	b.documents = make([]model.Document, 0, b.Template.BufferLen)
+	b.documents = make([]model.Document, 0, bufferLimit)
 	b.sizeKB = 0
 	return nil
 }

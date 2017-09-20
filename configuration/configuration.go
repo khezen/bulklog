@@ -31,7 +31,6 @@ type AWSAuth struct {
 type Template struct {
 	Name         TemplateName `json:"name"`
 	BufferSizeKB float64      `json:"bufferSizeKB"`
-	BufferLen    int          `json:"bufferLen"`
 	TimerMS      float64      `json:"timerMS"`
 	Body         interface{}  `json:"body"`
 }
