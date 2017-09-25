@@ -98,8 +98,8 @@ func (s *Service) handleRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.Dispatcher.Dispatch(document)
+	w.Header().Set("Connection", "close")
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write([]byte{})
 	if err != nil {
 		s.serveError(w, r, err)
