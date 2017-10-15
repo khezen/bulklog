@@ -52,7 +52,7 @@ func (r *espipeLogger) Message(lvl Level, rid, msg string) {
 }
 
 // WebCall logs a web request/response
-func (r *espipeLogger) WebCall(rid, cip, host, path, method, reqBody string, statCode int, resBody string, sec float64) {
+func (r *espipeLogger) WebCall(rid, cip, host, path, method, reqStr string, statCode int, resStr string, sec float64) {
 	r.web <- WebCall{
 		Level:             LevelVerbose,
 		Service:           r.config.Service,
@@ -62,9 +62,9 @@ func (r *espipeLogger) WebCall(rid, cip, host, path, method, reqBody string, sta
 		Host:              host,
 		Path:              path,
 		Method:            method,
-		RequestBody:       reqBody,
+		Request:           reqStr,
 		StatusCode:        statCode,
-		ResponseBody:      resBody,
+		Response:          resStr,
 		ResponseInSeconds: sec,
 	}
 }

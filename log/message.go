@@ -23,8 +23,8 @@ type WebCall struct {
 	Host              string  `json:"host"`
 	Path              string  `json:"path"`
 	Method            string  `json:"method"`
-	RequestBody       string  `json:"request_body"`
+	Request           string  `json:"request"`
 	StatusCode        int     `json:"status_code"`
-	ResponseBody      string  `json:"response_body"`
+	Response          string  `json:"response"`
 	ResponseInSeconds float64 `json:"response_in_seconds"`
 }

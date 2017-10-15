@@ -65,13 +65,13 @@
               "method": {
                 "type": "keyword"
               },
-              "request_body": {
+              "request": {
                 "type": "text"
               },
               "status_code": {
                 "type": "keyword"
               },
-              "response_body": {
+              "response": {
                 "type": "text"
               },
               "response_in_seconds": {
