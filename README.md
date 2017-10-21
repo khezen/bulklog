@@ -1,7 +1,7 @@
 
 # What is *espipe*?
 
-*espipe* is a RESTFull service indexing documents in bulk requests to Elasticsearch.
+*espipe* is a service indexing documents in bulk requests to Elasticsearch.
 
 ![](https://github.com/khezen/espipe/raw/master/espipe.png)
 
