@@ -39,38 +39,38 @@ func NewBuffer(template *configuration.Template, client *elastic.Client) *Buffer
 
 func (b *Buffer) append(msg model.Document) {
 	b.mutex.Lock()
-	defer b.mutex.Unlock()
 	b.documents = append(b.documents, msg)
 	b.sizeKB += float64(len(msg.Body)) / 1000
 	if b.sizeKB >= b.Template.BufferSizeKB || len(b.documents) >= bufferLimit {
-		err := b.flush()
-		if err != nil {
-			fmt.Println(err)
-		}
+		b.mutex.Unlock()
+		go b.flush()
+	} else {
+		b.mutex.Unlock()
 	}
 }
 
-func (b *Buffer) flush() error {
-	if len(b.documents) == 0 {
-		return nil
-	}
+func (b *Buffer) flush() {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
+	if len(b.documents) == 0 {
+		return
+	}
 	bulk := make([]byte, 0, int(b.sizeKB)+len(b.documents)*150)
 	for _, doc := range b.documents {
 		req, err := doc.Request()
 		if err != nil {
-			return err
+			fmt.Println(err.Error())
+			return
 		}
 		bulk = append(bulk, req...)
 	}
 	err := b.client.Bulk(bulk)
 	if err != nil {
-		return err
+		fmt.Println(err.Error())
+		return
 	}
 	b.documents = make([]model.Document, 0, bufferLimit)
 	b.sizeKB = 0
-	return nil
 }
 
 // Gophers returns a func() in wich go routines are taking new message to the bulk.
@@ -82,10 +82,7 @@ func (b *Buffer) Gophers() func() {
 			case <-b.Kill:
 				return
 			case <-ticker.C:
-				err := b.flush()
-				if err != nil {
-					fmt.Println(err)
-				}
+				b.flush()
 				break
 			case msg := <-b.Append:
 				b.append(msg)
