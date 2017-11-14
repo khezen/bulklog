@@ -82,7 +82,7 @@ func (b *Buffer) Gophers() func() {
 			case <-b.Kill:
 				return
 			case <-ticker.C:
-				b.flush()
+				go b.flush()
 				break
 			case msg := <-b.Append:
 				b.append(msg)
