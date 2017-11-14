@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	AWSSigner "github.com/aws/aws-sdk-go/aws/signer/v4"
-	"github.com/khezen/espipe/configuration"
-	"github.com/khezen/espipe/httpcli"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	AWSSigner "github.com/aws/aws-sdk-go/aws/signer/v4"
+	"github.com/khezen/espipe/configuration"
+	"github.com/khezen/espipe/httpcli"
 )
 
 var (
@@ -77,7 +78,7 @@ func (c *Client) Bulk(requestBody []byte) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n%v\n%v\n%v%v\n%v\n", time.Now(), c.bulkEndpoint, bytes.NewBuffer(requestBody).String(), res.Status, bytes.NewBuffer(resBody).String())
+	fmt.Printf("\n%s\n%s\n%s\n%s\n", time.Now(), c.bulkEndpoint, res.Status, bytes.NewBuffer(resBody).String())
 	return nil
 }
 
