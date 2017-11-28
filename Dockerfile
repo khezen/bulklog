@@ -1,4 +1,4 @@
-FROM golang:1.8.3-alpine3.6 as build
+FROM golang:1.9.2-alpine3.6 as build
 COPY ./ /tmp/app
 # important files persistence
 RUN mkdir /default \
