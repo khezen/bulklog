@@ -10,8 +10,8 @@
 # Run
 `docker run -p 5000:5000 -v /etc/espipe:/etc/espipe khezen/espipe:5`
 ## Supported tags and respective `Dockerfile` links
-* `5`, `latest`
- [(5/Dockerfile)](https://github.com/khezen/espipe/blob/5/Dockerfile) [![](https://images.microbadger.com/badges/image/khezen/espipe.svg)](https://hub.docker.com/r/khezen/espipe/)
+* `6`, `latest`
+ [(6/Dockerfile)](https://github.com/khezen/espipe/blob/6/Dockerfile)
 
 # Services
 
