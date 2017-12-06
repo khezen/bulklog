@@ -11,8 +11,7 @@
 `docker run -p 5000:5000 -v /etc/espipe:/etc/espipe khezen/espipe:6`
 ## Supported tags and respective `Dockerfile` links
 * `6`, `latest`
- [(6/Dockerfile)](https://github.com/khezen/espipe/blob/6/Dockerfile)
-
+ [(6/Dockerfile)](https://github.com/khezen/espipe/blob/6/Dockerfile)[![](https://images.microbadger.com/badges/image/khezen/espipe.svg)](https://hub.docker.com/r/khezen/espipe/)
 # Services
 
 Request|Response|Description
