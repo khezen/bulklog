@@ -1,0 +1,112 @@
+---
+
+# redis:
+#   enabled: false
+#   address:http://localhost:6379
+#   password: changeme
+#   parition:0
+
+consumers: 
+ 
+  elasticsearch:
+    enabled: true
+    addr: http://localhost:9200
+    shards: 1
+#   aws_auth:
+#     access_key_id: changeme
+#     secret_access_key: changeme
+#     region: eu-west-1
+#   basic_auth: 
+#     username: elastic
+#     password: changeme
+
+collections:
+
+- name: logs
+  flush_period: 5 seconds # hours|minutes|seconds|milliseconds
+  retention_period: 10 minutes
+  schemas:
+    log:
+      source: 
+        type: string 
+      level: 
+        type: string
+      message: 
+        type: string
+      request_id: 
+        type: string
+
+- name: web
+  flush_period: 5 seconds # hours|minutes|seconds|milliseconds
+  retention_period: 10 minutes
+  schemas:
+    trace:
+      source: 
+        type: string
+      request_id: 
+        type: string
+        length: 36
+      client_ip: 
+        type: string
+      host: 
+        type: string
+      path: 
+        type: string
+      method: 
+        type: string
+        max_length: 6
+      request_dump: 
+        type: string
+      status_code: 
+        type: int16
+      response_dump: 
+        type: string
+      response_time_ms: 
+        type: int32
+
+
+# # # # # # # # # # # # # # # # # #
+# create a collection of your own #
+# # # # # # # # # # # # # # # # # #
+#
+# supported types
+# # # # # # # # # 
+#
+# * bool : True or False
+#
+# * unint8 : 0 to 255
+# * uint16 :  0 to 65535
+# * uint32 : 0 to 4294967295
+# * unit64 : 0 to 18446744073709551615
+#
+# * int8 : -128 to 127
+# * int16 : -32768 to 32767
+# * int32 : -2147483648 to 2147483647
+# * int64 : -9223372036854775808 to 9223372036854775807
+#
+# * float32 : -3.40282346638528859811704183484516925440e+38 to 3.40282346638528859811704183484516925440e+38
+# * float64 : -1.797693134862315708145274237317043567981e+308 to 1.797693134862315708145274237317043567981e+308
+#
+# * string : sequence of characters
+#    * lenght: string exact length
+#    * max_length: string maximum length
+#
+# * datetime : '1970-01-01 00:00:01.000000000' UTC to '2038-01-19 03:14:07.999999999' UTC
+#   * date_format: date format string
+#     * Mon Jan _2 15:04:05 2006
+#     * Mon Jan _2 15:04:05 MST 2006
+#     * Mon Jan 02 15:04:05 -0700 2006
+#     * 02 Jan 06 15:04 MST
+#     * 02 Jan 06 15:04 -0700
+#     * Monday, 02-Jan-06 15:04:05 MST
+#     * Mon, 02 Jan 2006 15:04:05 MST
+#     * Mon, 02 Jan 2006 15:04:05 -0700
+#     * 2006-01-02T15:04:05Z07:00"
+#     * 2006-01-02T15:04:05.999999999Z07:00
+#     * 3:04PM
+#     * Jan _2 15:04:05
+#     * Jan _2 15:04:05.000
+#     * Jan _2 15:04:05.000000
+#     * Jan _2 15:04:05.000000000
+#
+# * object : inner document
