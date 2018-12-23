@@ -5,7 +5,7 @@ RUN apk add --no-cache git openssh-client musl-dev gcc curl
 COPY ./ /tmp/app
 # save files
 RUN mkdir /default \
-&&  cp /tmp/app/config.json /default/config.json \
+&&  cp /tmp/app/config.yaml /default/config.yaml \
 && mv /tmp/app/entrypoint.sh /entrypoint.sh \
 && chmod +x /entrypoint.sh
 # compilation
@@ -14,7 +14,7 @@ RUN mkdir -p /usr/local/go/src/github.com/khezen/ \
 &&  go build -o /bin/espipe github.com/khezen/espipe
 
 FROM alpine:3.8
-COPY --from=build /default/config.json /default/config.json
+COPY --from=build /default/config.yaml /default/config.yaml
 COPY --from=build /entrypoint.sh /entrypoint.sh
 COPY --from=build /bin/espipe /bin/espipe
 RUN apk add --no-cache ca-certificates
