@@ -155,6 +155,7 @@ map of fields by field name
    * **max_length**: string maximum length
 
 * **datetime** : `1970-01-01T00:00:00.000000000Z` (example)
+  * *bulklog* doesn't check the date format. Most consumers accept any even if it defers from the configured one
   * **date_format**: date format string
     * `Mon Jan _2 15:04:05 2006`
     * `Mon Jan _2 15:04:05 MST 2006`
