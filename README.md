@@ -30,7 +30,7 @@ A collection is a set of schemas.
 
 ---
 
-## quick start
+## Quick Start
 
 ### Docker
 `docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable`
@@ -176,6 +176,7 @@ map of fields by field name
 
 * **object** : inner document 
 
+---
 
 ## Issues
 If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).
