@@ -3,7 +3,7 @@
 
 *bulklog* is a service indexing documents in bulk requests to Elasticsearch.
 
-![](https://github.com/khezen/bulklog/raw/master/bulklog.png)
+![](https://github.com/khezen/bulklog/raw/master/icon.png)
 
 
 
