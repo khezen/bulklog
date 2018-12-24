@@ -2,9 +2,9 @@
 
 # redis:
 #   enabled: false
-#   address:http://localhost:6379
+#   address: http://localhost:6379
 #   password: changeme
-#   parition:0
+#   db: 0
 
 consumers: 
  
@@ -24,7 +24,7 @@ collections:
 
 - name: logs
   flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-  retention_period: 10 minutes
+  retention_period: 45 minutes
   schemas:
     log:
       source: 
@@ -38,7 +38,7 @@ collections:
 
 - name: web
   flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-  retention_period: 10 minutes
+  retention_period: 45 minutes
   schemas:
     trace:
       source: 

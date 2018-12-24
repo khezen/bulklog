@@ -19,8 +19,8 @@ type Consumers struct {
 
 // Redis -
 type Redis struct {
-	Enabled   bool   `yaml:"enabled"`
-	Address   string `yaml:"address"`
-	Password  string `yaml:"password"`
-	Partition int    `yaml:"partition"`
+	Enabled  bool   `yaml:"enabled"`
+	Address  string `yaml:"address"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }

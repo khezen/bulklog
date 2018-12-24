@@ -32,7 +32,7 @@ func RedisBuffer(collec collection.Collection, redisConfig config.Redis, consume
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConfig.Address,
 		Password: redisConfig.Password,
-		DB:       redisConfig.Partition,
+		DB:       redisConfig.DB,
 	})
 	rbuffer := &redisBuffer{
 		Mutex:         sync.Mutex{},
