@@ -5,20 +5,20 @@ import (
 )
 
 // New Collection
-func New(cfg Config) (Collection, error) {
+func New(cfg Config) (*Collection, error) {
 	flushPeriod, err := cfg.FlushPeriod()
 	if err != nil {
-		return Collection{}, err
+		return nil, err
 	}
 	retentionPeriod, err := cfg.RetentionPeriod()
 	if err != nil {
-		return Collection{}, err
+		return nil, err
 	}
 	schemas, err := cfg.Schemas()
 	if err != nil {
-		return Collection{}, err
+		return nil, err
 	}
-	return Collection{
+	return &Collection{
 		Name:            cfg.Name,
 		FlushPeriod:     flushPeriod,
 		RetentionPeriod: retentionPeriod,

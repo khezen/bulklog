@@ -19,10 +19,11 @@ func convey(documents []collection.Document, consumers []consumer.Interface, ret
 		timer       *time.Timer
 		latestTryAt time.Time
 		waitFor     time.Duration
+		cons        consumer.Interface
 	)
 	for {
 		latestTryAt = time.Now().UTC()
-		for _, cons := range consumers {
+		for _, cons = range consumers {
 			err = cons.Digest(documents)
 			if err != nil {
 				if failed == nil {

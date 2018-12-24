@@ -15,14 +15,14 @@ const bufferLimit = 10000
 // It sends messages in bulk to elasticsearch.
 type buffer struct {
 	sync.Mutex
-	collection collection.Collection
+	collection *collection.Collection
 	consumers  []consumer.Interface
 	close      chan struct{}
 	documents  []collection.Document
 }
 
 // DefaultBuffer creates a new buffer
-func DefaultBuffer(collec collection.Collection, consumers ...consumer.Interface) Buffer {
+func DefaultBuffer(collec *collection.Collection, consumers ...consumer.Interface) Buffer {
 	buffer := &buffer{
 		Mutex:      sync.Mutex{},
 		collection: collec,
@@ -33,16 +33,10 @@ func DefaultBuffer(collec collection.Collection, consumers ...consumer.Interface
 	return buffer
 }
 
-func (b *buffer) Set(consumers ...consumer.Interface) {
-	b.Lock()
-	b.consumers = consumers
-	b.Unlock()
-}
-
 // Append to buffer
-func (b *buffer) Append(d collection.Document) error {
+func (b *buffer) Append(d *collection.Document) error {
 	b.Lock()
-	b.documents = append(b.documents, d)
+	b.documents = append(b.documents, *d)
 	b.Unlock()
 	return nil
 }
@@ -55,10 +49,8 @@ func (b *buffer) Flush() (bubbledErr error) {
 	if documentsLen == 0 {
 		return nil
 	}
-	documentsCpy := b.documents
+	go convey(b.documents, b.consumers, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	b.documents = make([]collection.Document, 0, bufferLimit)
-	consumersCpy := append(make([]consumer.Interface, 0, len(b.consumers)), b.consumers...)
-	go convey(documentsCpy, consumersCpy, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
 

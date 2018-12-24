@@ -178,8 +178,11 @@ map of fields by field name
 * **object** : inner document 
 
 
-
-
-# User Feedback
 ## Issues
 If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).
+
+## Contributions
+
+Help is always welcome! For example, documentation (like the text you are reading now) can always use improvement. There's always code that can be clarified and variables or functions that can be renamed or commented. If you ever see something you think should be fixed, you should own it. Here is how you get started. If you have no idea what to start on, you can browse the issues labeled with `help wanted`.
+
+As a potential contributor, your changes and ideas are welcome at any hour of the day or night, weekdays, weekends, and holidays. Please do not ever hesitate to ask a question or send a pull request.

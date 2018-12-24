@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func redisConvey(red redis.Client, pipeKey string) {
+func redisConvey(red *redis.Client, pipeKey string) {
 	startedAt, retryPeriod, retentionPeriod, err := getPipe(red, pipeKey)
 	if err != nil {
 		fmt.Println(err)
@@ -24,7 +24,7 @@ func redisConvey(red redis.Client, pipeKey string) {
 }
 
 func presetRedisConvey(
-	red redis.Client, pipeKey string,
+	red *redis.Client, pipeKey string,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
 	documents, err := getDocuments(red, pipeKey)
@@ -107,7 +107,7 @@ func presetRedisConvey(
 	}
 }
 
-func redisConveyAll(red redis.Client, pipeKeyPrefix string) {
+func redisConveyAll(red *redis.Client, pipeKeyPrefix string) {
 	var (
 		pattern     = fmt.Sprintf(`%s\..{36}$`, pipeKeyPrefix)
 		maxTries    = 20

@@ -24,7 +24,7 @@ func New(cfg config.Config) (Engine, error) {
 	for _, collecCfg := range cfg.Collections {
 		collec, err := collection.New(collecCfg)
 		if err != nil {
-			return engine{}, err
+			return nil, err
 		}
 		schemas[collec.Name] = make(map[collection.SchemaName]struct{})
 		for _, schema := range collec.Schemas {
@@ -34,7 +34,7 @@ func New(cfg config.Config) (Engine, error) {
 		if cfg.Redis.Enabled {
 			buffer, err = RedisBuffer(collec, cfg.Redis, consumers...)
 			if err != nil {
-				return engine{}, err
+				return nil, err
 			}
 		} else {
 			buffer = DefaultBuffer(collec, consumers...)
@@ -44,14 +44,14 @@ func New(cfg config.Config) (Engine, error) {
 			go buffer.Flusher()()
 		}
 	}
-	return engine{
+	return &engine{
 		schemas,
 		buffers,
 	}, nil
 }
 
 // Collect document
-func (e engine) Collect(collectionName collection.Name, schemaName collection.SchemaName, docBytes []byte) error {
+func (e *engine) Collect(collectionName collection.Name, schemaName collection.SchemaName, docBytes []byte) error {
 	_, ok := e.schemas[collectionName]
 	if !ok {
 		return ErrNotFound
@@ -67,6 +67,6 @@ func (e engine) Collect(collectionName collection.Name, schemaName collection.Sc
 }
 
 // Dispatch takes incoming message into Elasticsearch
-func (e engine) Dispatch(document collection.Document) error {
+func (e *engine) Dispatch(document *collection.Document) error {
 	return e.buffers[document.CollectionName].Append(document)
 }

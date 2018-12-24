@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -16,9 +15,8 @@ import (
 )
 
 type redisBuffer struct {
-	sync.Mutex
-	redis         redis.Client
-	collection    collection.Collection
+	redis         *redis.Client
+	collection    *collection.Collection
 	consumers     []consumer.Interface
 	bufferKey     string
 	timeKey       string
@@ -28,15 +26,14 @@ type redisBuffer struct {
 }
 
 // RedisBuffer -
-func RedisBuffer(collec collection.Collection, redisConfig config.Redis, consumers ...consumer.Interface) (Buffer, error) {
+func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consumers ...consumer.Interface) (Buffer, error) {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConfig.Address,
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
 	})
 	rbuffer := &redisBuffer{
-		Mutex:         sync.Mutex{},
-		redis:         *redisClient,
+		redis:         redisClient,
 		collection:    collec,
 		consumers:     consumers,
 		bufferKey:     fmt.Sprintf("bulklog.%s.buffer", collec.Name),
@@ -53,24 +50,15 @@ func RedisBuffer(collec collection.Collection, redisConfig config.Redis, consume
 	return rbuffer, nil
 }
 
-func (b *redisBuffer) Set(consumers ...consumer.Interface) {
-	b.Lock()
-	b.consumers = consumers
-	b.Unlock()
-}
-
-func (b *redisBuffer) Append(doc collection.Document) (err error) {
+func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 	var buf bytes.Buffer
-	err = gob.NewEncoder(&buf).Encode(doc)
+	err = gob.NewEncoder(&buf).Encode(*doc)
 	if err != nil {
-		return err
+		return
 	}
 	docBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
 	_, err = b.redis.RPushX(b.bufferKey, docBase64).Result()
-	if err != nil {
-		return err
-	}
-	return nil
+	return
 }
 
 func (b *redisBuffer) Flush() (err error) {

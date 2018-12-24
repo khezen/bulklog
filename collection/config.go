@@ -18,7 +18,7 @@ type Config struct {
 type SchemaConfig map[string]Field
 
 // FlushPeriod - extract flush period from config
-func (c Config) FlushPeriod() (time.Duration, error) {
+func (c *Config) FlushPeriod() (time.Duration, error) {
 	if c.FlushPeriodStr == "" {
 		return 0, nil
 	}
@@ -26,7 +26,7 @@ func (c Config) FlushPeriod() (time.Duration, error) {
 }
 
 // RetentionPeriod - extract flush period from config
-func (c Config) RetentionPeriod() (time.Duration, error) {
+func (c *Config) RetentionPeriod() (time.Duration, error) {
 	if c.RetentionPeriodStr == "" {
 		return 0, nil
 	}

@@ -17,19 +17,19 @@ type Document struct {
 }
 
 // NewDocument creates a document from es index, document type and its body
-func NewDocument(collectionName Name, schemaName SchemaName, body []byte) (Document, error) {
+func NewDocument(collectionName Name, schemaName SchemaName, body []byte) (*Document, error) {
 	now := time.Now().UTC()
 	id := uuid.New()
 	var bodyMap map[string]interface{}
 	err := json.Unmarshal(body, &bodyMap)
 	if err != nil {
-		return Document{}, err
+		return nil, err
 	}
 	body, err = json.Marshal(bodyMap)
 	if err != nil {
-		return Document{}, err
+		return nil, err
 	}
-	return Document{
+	return &Document{
 		ID:             id,
 		PostedAt:       now,
 		CollectionName: collectionName,

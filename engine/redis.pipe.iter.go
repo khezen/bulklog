@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func getIter(red redis.Client, pipeKey string) (i int, err error) {
+func getIter(red *redis.Client, pipeKey string) (i int, err error) {
 	iStr, err := red.HGet(pipeKey, "iter").Result()
 	if err != nil {
 		return -1, err
@@ -15,7 +15,7 @@ func getIter(red redis.Client, pipeKey string) (i int, err error) {
 	return strconv.Atoi(iStr)
 }
 
-func setIter(red redis.Client, pipeKey string, iter int) (err error) {
+func setIter(red *redis.Client, pipeKey string, iter int) (err error) {
 	_, err = red.HSet(pipeKey, "iter", iter).Result()
 	if err != nil {
 		fmt.Println(err)

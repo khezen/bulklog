@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func getPipe(red redis.Client, pipeKey string) (
+func getPipe(red *redis.Client, pipeKey string) (
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration,
 	err error) {

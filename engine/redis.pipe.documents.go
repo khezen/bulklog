@@ -10,7 +10,7 @@ import (
 	"github.com/khezen/bulklog/collection"
 )
 
-func getDocuments(red redis.Client, pipeKey string) (documents []collection.Document, err error) {
+func getDocuments(red *redis.Client, pipeKey string) (documents []collection.Document, err error) {
 	bufferKey := fmt.Sprintf("%s.buffer", pipeKey)
 	documentsLen, err := red.LLen(bufferKey).Result()
 	if err != nil {
