@@ -31,7 +31,7 @@ func New(cfg *config.Config, quit chan error) (*Server, error) {
 
 // ListenAndServe - Blocks the current goroutine, opens an HTTP port and serves the web REST requests
 func (s *Server) ListenAndServe() {
-	http.HandleFunc("/bulklog/v1/health/", s.handleHealthCheck)
+	http.HandleFunc("/bulklog/v1/health", s.handleHealthCheck)
 	http.HandleFunc("/bulklog/v1/", s.handleCollect)
 	fmt.Printf("opening bulklog at %v\n", endpoint)
 	s.quit <- http.ListenAndServe(endpoint, nil)
