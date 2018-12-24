@@ -17,7 +17,7 @@ func main() {
 		config.Set("config.yaml")
 		cfg, err = config.Get()
 	}
-	server, err := server.New(*cfg, quit)
+	server, err := server.New(cfg, quit)
 	if err != nil {
 		panic(err)
 	}

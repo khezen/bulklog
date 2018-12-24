@@ -17,7 +17,7 @@ type Server struct {
 }
 
 // New - Create new service for serving web REST requests
-func New(cfg config.Config, quit chan error) (*Server, error) {
+func New(cfg *config.Config, quit chan error) (*Server, error) {
 	e, err := engine.New(cfg)
 	if err != nil {
 		return nil, err

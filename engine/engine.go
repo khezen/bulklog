@@ -14,7 +14,7 @@ type engine struct {
 }
 
 // New - Create new service for serving web REST requests
-func New(cfg config.Config) (Engine, error) {
+func New(cfg *config.Config) (Engine, error) {
 	consumers := make([]consumer.Interface, 0, 5)
 	if cfg.Consumers.Elastic != nil {
 		consumers = append(consumers, elastic.New(*cfg.Consumers.Elastic))
