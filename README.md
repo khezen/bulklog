@@ -35,7 +35,6 @@ A collection is a set of schemas.
 ### Docker
 `docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable`
 #### Supported tags
-* `1`
 * `1.0.0`, `1.0`, `1`, `stable`, `latest`
 
 ---
