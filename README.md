@@ -76,16 +76,7 @@ consumers:
 
 ### Collections
 
-* collection
-  * name: {collection name}
-  * flush_period: {duration}
-    * flush buffer and output data to consumers every {duration} 
-  * retention_period: {duration}
-    * if a consumer is unavailable, retention_period set how long *bulklog* tries to output data to this consumer
-    * if the consumer is unavailable for too long, retention_period ensure that *bulklog* will not accumulate too much data and will be able to serve other consumers.
-  * schemas: {map of schema configurations by schema name}
-
-* schema
+example:
 
 ```yaml
 collections:
@@ -119,6 +110,72 @@ collections:
       response_time_ms: 
         type: int32
 ```
+
+#### collection
+
+* **name**: `{collection name}`
+* **flush_period**: `{duration}`
+  * flush buffer and output data to consumers every `{duration}` 
+* **retention_period**: `{duration}`
+  * if a consumer is unavailable, **retention_period** set how long *bulklog* tries to output data to this consumer
+  * if the consumer is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other consumers.
+* **schemas**: `{map of schema configurations by schema name}`
+
+#### schema
+
+map of fields by field name
+
+#### field
+
+* **type**: `{field type}`
+* **length**: `{field exact length}` (optional,string only)
+* **max_length**: `{field maximum length}` (optional, string only)
+* **date_format**: `{date time formatting}` (optional, datetime only)
+
+
+##### supported types:
+
+* **bool** : `True` or `False`
+
+* **unint8** : `0` to `255`
+* **uint16** : `0` to `65535`
+* **uint32** : `0` to `4294967295`
+* **unit64** : `0` to `18446744073709551615`
+
+* **int8** : `-128` to `127`
+* **int16** : `-32768` to `32767`
+* **int32** : `-2147483648` to `2147483647`
+* **int64** : `-9223372036854775808` to `9223372036854775807`
+
+* **float32** : `-3.40282346638528859811704183484516925440e+38` to `3.40282346638528859811704183484516925440e+38`
+* **float64** : `-1.797693134862315708145274237317043567981e+308` to `1.797693134862315708145274237317043567981e+308`
+
+* **string** : sequence of characters
+   * **lenght**: string exact length
+   * **max_length**: string maximum length
+
+* **datetime** : `1970-01-01T00:00:00.000000000Z` (example)
+  * **date_format**: date format string
+    * `Mon Jan _2 15:04:05 2006`
+    * `Mon Jan _2 15:04:05 MST 2006`
+    * `Mon Jan 02 15:04:05 -0700 2006`
+    * `02 Jan 06 15:04 MST`
+    * `02 Jan 06 15:04 -0700`
+    * `Monday, 02-Jan-06 15:04:05 MST`
+    * `Mon, 02 Jan 2006 15:04:05 MST`
+    * `Mon, 02 Jan 2006 15:04:05 -0700`
+    * `2006-01-02T15:04:05Z07:00`
+    * `2006-01-02T15:04:05.999999999Z07:00`
+    * `3:04PM`
+    * `Jan _2 15:04:05`
+    * `Jan _2 15:04:05.000`
+    * `Jan _2 15:04:05.000000`
+    * `Jan _2 15:04:05.000000000`
+
+* **object** : inner document 
+
+
+
 
 # User Feedback
 ## Issues
