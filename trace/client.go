@@ -12,19 +12,19 @@ import (
 // Config -
 type Config struct {
 	Source         string
-	espipeEndpoint string
+	bulklogEndpoint string
 }
 
-// espipeLogger contains data necessary to log with espipe
-type espipeLogger struct {
+// bulklogLogger contains data necessary to log with bulklog
+type bulklogLogger struct {
 	config Config
 	msg    chan Message
 	web    chan WebCall
 }
 
-// NewLogger creates new espipe logger
+// NewLogger creates new bulklog logger
 func NewLogger(config Config) Logger {
-	return &espipeLogger{
+	return &bulklogLogger{
 		config,
 		make(chan Message),
 		make(chan WebCall),
@@ -32,7 +32,7 @@ func NewLogger(config Config) Logger {
 }
 
 // Message logs a message
-func (r *espipeLogger) Message(lvl Level, rid, msg string) {
+func (r *bulklogLogger) Message(lvl Level, rid, msg string) {
 	r.msg <- Message{
 		Level:     lvl,
 		Source:    r.config.Source,
@@ -42,7 +42,7 @@ func (r *espipeLogger) Message(lvl Level, rid, msg string) {
 }
 
 // WebCall logs a web request/response
-func (r *espipeLogger) WebCall(rid, cip, host, path, method, reqStr string, statCode int, resStr string, sec float64) {
+func (r *bulklogLogger) WebCall(rid, cip, host, path, method, reqStr string, statCode int, resStr string, sec float64) {
 	r.web <- WebCall{
 		Level:             LevelVerbose,
 		Source:            r.config.Source,
@@ -59,7 +59,7 @@ func (r *espipeLogger) WebCall(rid, cip, host, path, method, reqStr string, stat
 }
 
 // ListenAndServe blocks the current goroutine and start sending all messages and web calls to logstash
-func (r *espipeLogger) ListenAndServe() {
+func (r *bulklogLogger) ListenAndServe() {
 	for {
 		select {
 		case m := <-r.msg:
@@ -75,7 +75,7 @@ func (r *espipeLogger) ListenAndServe() {
 	}
 }
 
-func (r *espipeLogger) renderBody(document interface{}) []byte {
+func (r *bulklogLogger) renderBody(document interface{}) []byte {
 	body, err := json.Marshal(document)
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
@@ -83,21 +83,21 @@ func (r *espipeLogger) renderBody(document interface{}) []byte {
 	return body
 }
 
-func (r *espipeLogger) postMsg(msg Message) {
-	url := fmt.Sprintf("%s/espipe/v1/logs/log", r.config.espipeEndpoint)
+func (r *bulklogLogger) postMsg(msg Message) {
+	url := fmt.Sprintf("%s/bulklog/v1/logs/log", r.config.bulklogEndpoint)
 	body := r.renderBody(msg)
 	res, err := http.Post(url, "application/json", bytes.NewReader(body))
 	r.handleResponse(res, err)
 }
 
-func (r *espipeLogger) postTrace(trace WebCall) {
-	url := fmt.Sprintf("%s/espipe/v1/web/trace", r.config.espipeEndpoint)
+func (r *bulklogLogger) postTrace(trace WebCall) {
+	url := fmt.Sprintf("%s/bulklog/v1/web/trace", r.config.bulklogEndpoint)
 	body := r.renderBody(trace)
 	res, err := http.Post(url, "application/json", bytes.NewReader(body))
 	r.handleResponse(res, err)
 }
 
-func (r *espipeLogger) handleResponse(res *http.Response, err error) {
+func (r *bulklogLogger) handleResponse(res *http.Response, err error) {
 	if err != nil {
 		fmt.Printf("ERROR in sending message: %v\n", err)
 		return

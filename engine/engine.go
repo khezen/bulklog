@@ -1,10 +1,10 @@
 package engine
 
 import (
-	"github.com/khezen/espipe/collection"
-	"github.com/khezen/espipe/config"
-	"github.com/khezen/espipe/consumer"
-	"github.com/khezen/espipe/consumer/elastic"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/consumer"
+	"github.com/khezen/bulklog/consumer/elastic"
 )
 
 // Indexer indexes document in bulk request to elasticsearch

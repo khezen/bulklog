@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/khezen/espipe/engine"
+	"github.com/khezen/bulklog/engine"
 )
 
 var (

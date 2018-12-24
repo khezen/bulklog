@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/khezen/espipe/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
 // Index - elasticsearch index definition

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/khezen/espipe/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
-// POST /espipe/v1/{collection}/{schema}
+// POST /bulklog/v1/{collection}/{schema}
 func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		s.serveError(w, r, ErrWrongMethod)
@@ -35,7 +35,7 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte{})
 }
 
-// GET /espipe/health
+// GET /bulklog/health
 func (s *Server) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }

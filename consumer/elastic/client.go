@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/khezen/espipe/auth"
-	"github.com/khezen/espipe/collection"
-	"github.com/khezen/espipe/consumer"
+	"github.com/khezen/bulklog/auth"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/consumer"
 )
 
 var (

@@ -1,16 +1,16 @@
 
-# What is *espipe*?
+# What is *bulklog*?
 
-*espipe* is a service indexing documents in bulk requests to Elasticsearch.
+*bulklog* is a service indexing documents in bulk requests to Elasticsearch.
 
-![](https://github.com/khezen/espipe/raw/master/espipe.png)
+![](https://github.com/khezen/bulklog/raw/master/bulklog.png)
 
 
 
 # Run
 
 ## Docker
-`docker run -p 5000:5000 -v /etc/espipe:/etc/espipe khezen/espipe:stable`
+`docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable`
 ### Supported tags
 * `1`
 * `2.0.0`, `1.0`, `1`, `stable`,`latest`
@@ -46,21 +46,21 @@ Redis is disabled by default in which case buffer is stored in memory.
   }
 ```
 ### templates
-  * *espipe* creates index templates in elasticsearch if they do not exist yet
-  * for each template, *espipe* creates indices on daily basis
+  * *bulklog* creates index templates in elasticsearch if they do not exist yet
+  * for each template, *bulklog* creates indices on daily basis
     * template=logs-\*,
     * indices=logs-2017.01.05, logs-2017.01.06, etc..
-  * For each index, *espipe* triggers bulk requests every `flushPeriodMS`
+  * For each index, *bulklog* triggers bulk requests every `flushPeriodMS`
 
 #### template.body
 template.body takes the template **settings** and **mappings** with types definition.
 See the [Create Template API documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html).
 
-The mapping itself is flexible and is schema-free. New fields are automatically added to the type mapping definition when *espipe* indexes a new document. Check out the [mapping section](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) for more information on mapping definitions.
+The mapping itself is flexible and is schema-free. New fields are automatically added to the type mapping definition when *bulklog* indexes a new document. Check out the [mapping section](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) for more information on mapping definitions.
 
 ### AWS Sign
 
-*espipe* supports AWS authentication for Amazon Elasticsearch Service
+*bulklog* supports AWS authentication for Amazon Elasticsearch Service
 ```json
 
 "elasticsearch": {
@@ -76,7 +76,7 @@ The mapping itself is flexible and is schema-free. New fields are automatically 
 
 ### Basic Auth
 
-*espipe* supports basic authentication for Elasticsearch (shield, search-guard)
+*bulklog* supports basic authentication for Elasticsearch (shield, search-guard)
 
 ```json
 
@@ -92,15 +92,15 @@ The mapping itself is flexible and is schema-free. New fields are automatically 
 
 ## Default config.json
 
-* See [default config.json](https://github.com/khezen/espipe/raw/master/config.json).
+* See [default config.json](https://github.com/khezen/bulklog/raw/master/config.json).
 
-* See [Go logger client](https://godoc.org/github.com/khezen/espipe/log) working with indexes defined in the [default config.json](https://github.com/khezen/espipe/raw/master/config.json).
+* See [Go logger client](https://godoc.org/github.com/khezen/bulklog/log) working with indexes defined in the [default config.json](https://github.com/khezen/bulklog/raw/master/config.json).
 
 Request|Response|Description
 ---|---|---
-POST /espipe/v1/logs/log JSON body | 200 OK | indexes JSON body as `log` in Elasticsearch `logs-yyyy.MM.dd`
-POST /espipe/v1/web/trace JSON body | 200 OK | indexes JSON body as `trace` in Elasticsearch `web-yyyy.MM.dd`
-GET /espipe/v1/health | 200 OK | healthcheck
+POST /bulklog/v1/logs/log JSON body | 200 OK | indexes JSON body as `log` in Elasticsearch `logs-yyyy.MM.dd`
+POST /bulklog/v1/web/trace JSON body | 200 OK | indexes JSON body as `trace` in Elasticsearch `web-yyyy.MM.dd`
+GET /bulklog/v1/health | 200 OK | healthcheck
 
 
 
@@ -108,4 +108,4 @@ GET /espipe/v1/health | 200 OK | healthcheck
 
 # User Feedback
 ## Issues
-If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/espipe/issues).
+If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).

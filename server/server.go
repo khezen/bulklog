@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	config "github.com/khezen/espipe/config"
-	"github.com/khezen/espipe/engine"
+	config "github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/engine"
 )
 
 const endpoint = ":5000"
@@ -31,8 +31,8 @@ func New(cfg config.Config, quit chan error) (*Server, error) {
 
 // ListenAndServe - Blocks the current goroutine, opens an HTTP port and serves the web REST requests
 func (s *Server) ListenAndServe() {
-	http.HandleFunc("/espipe/v1/health/", s.handleHealthCheck)
-	http.HandleFunc("/espipe/v1/", s.handleCollect)
-	fmt.Printf("opening espipe at %v\n", endpoint)
+	http.HandleFunc("/bulklog/v1/health/", s.handleHealthCheck)
+	http.HandleFunc("/bulklog/v1/", s.handleCollect)
+	fmt.Printf("opening bulklog at %v\n", endpoint)
 	s.quit <- http.ListenAndServe(endpoint, nil)
 }

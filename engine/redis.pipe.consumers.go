@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 
 	"github.com/go-redis/redis"
-	"github.com/khezen/espipe/consumer"
+	"github.com/khezen/bulklog/consumer"
 )
 
 func getConsumers(tx redis.Pipeliner, pipeKey string) (consumers []consumer.Interface, err error) {

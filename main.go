@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/khezen/espipe/config"
-	"github.com/khezen/espipe/server"
+	"github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/server"
 )
 
 var (
-	configFile = "/etc/espipe/config.yaml"
+	configFile = "/etc/bulklog/config.yaml"
 )
 
 func main() {

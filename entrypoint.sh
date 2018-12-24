@@ -1,9 +1,9 @@
 #!/bin/sh
 
-mkdir -p /etc/espipe
+mkdir -p /etc/bulklog
 
-if [ ! -f /etc/espipe/config.json ]; then
-  cp /default/config.json /etc/espipe
+if [ ! -f /etc/bulklog/config.json ]; then
+  cp /default/config.json /etc/bulklog
 fi
 
 exec $@

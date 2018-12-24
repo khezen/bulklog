@@ -1,7 +1,7 @@
 package consumer
 
 import (
-	"github.com/khezen/espipe/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
 // Interface interface to send msg to recipents

@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis"
-	"github.com/khezen/espipe/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
 func getDocuments(red redis.Client, pipeKey string) (documents []collection.Document, err error) {

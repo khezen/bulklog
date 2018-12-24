@@ -9,7 +9,7 @@ import (
 
 var (
 	singleton *Config
-	path      = "/etc/espipe/config.yaml"
+	path      = "/etc/bulklog/config.yaml"
 	mut       = sync.RWMutex{}
 )
 

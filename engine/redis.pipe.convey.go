@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/khezen/espipe/consumer"
+	"github.com/khezen/bulklog/consumer"
 
 	"github.com/go-redis/redis"
 )

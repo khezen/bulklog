@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/khezen/espipe/collection"
-	"github.com/khezen/espipe/consumer/elastic"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/consumer/elastic"
 )
 
 // Config contains all configuration for the logger

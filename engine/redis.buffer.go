@@ -10,9 +10,9 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
-	"github.com/khezen/espipe/collection"
-	"github.com/khezen/espipe/config"
-	"github.com/khezen/espipe/consumer"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/consumer"
 )
 
 type redisBuffer struct {
@@ -39,9 +39,9 @@ func RedisBuffer(collec collection.Collection, redisConfig config.Redis, consume
 		redis:         *redisClient,
 		collection:    collec,
 		consumers:     consumers,
-		bufferKey:     fmt.Sprintf("espipe.%s.buffer", collec.Name),
-		timeKey:       fmt.Sprintf("espipe.%s.flushedAt", collec.Name),
-		pipeKeyPrefix: fmt.Sprintf("espipe.%s.pipes", collec.Name),
+		bufferKey:     fmt.Sprintf("bulklog.%s.buffer", collec.Name),
+		timeKey:       fmt.Sprintf("bulklog.%s.flushedAt", collec.Name),
+		pipeKeyPrefix: fmt.Sprintf("bulklog.%s.pipes", collec.Name),
 		flushedAt:     time.Now().UTC(),
 		close:         make(chan struct{}),
 	}
