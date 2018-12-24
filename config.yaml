@@ -62,7 +62,7 @@ collections:
       response_dump: 
         type: string
       response_time_ms: 
-        type: int32
+        type: uint32
 
 
 # # # # # # # # # # # # # # # # # #

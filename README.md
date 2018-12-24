@@ -178,6 +178,45 @@ map of fields by field name
 
 ---
 
+## API
+
+### Collection
+
+```http
+POST /bulklog/{collectionName}/{schemaName} HTTP/1.1
+Content-Type: application/json
+{
+  ...
+}
+
+HTTP/1.1 200 OK
+```
+
+example:
+
+```http
+POST /bulklog/logs/log HTTP/1.1
+Content-Type: application/json
+{
+  "source":"service1",
+  "request_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
+  "level": "Fatal",
+  "message": "divizion by zero"
+}
+
+HTTP/1.1 200 OK
+```
+
+### Health
+
+```http
+GET /bulklog/health HTTP/1.1
+
+HTTP/1.1 200 OK
+```
+
+---
+
 ## Issues
 If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).
 

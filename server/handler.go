@@ -30,9 +30,7 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 		s.serveError(w, r, err)
 		return
 	}
-	w.Header().Set("Connection", "close")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte{})
 }
 
 // GET /bulklog/health
