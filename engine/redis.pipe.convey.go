@@ -69,6 +69,7 @@ func presetRedisConvey(
 					err = setConsumers(tx, pipeKey, consumers)
 					if err != nil {
 						fmt.Println(err)
+						err = nil
 						return
 					}
 				}
@@ -77,6 +78,7 @@ func presetRedisConvey(
 				err = deletePipe(tx, pipeKey)
 				if err != nil {
 					fmt.Println(err)
+					err = nil
 				}
 				done = true
 				return
