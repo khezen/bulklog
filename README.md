@@ -41,7 +41,7 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.2`, `1.0`, `1`, `stable`
+* `1.0.3`, `1.0`, `1`, `stable`
 
 ---
 
@@ -49,7 +49,7 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 
 Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
-### Redis
+### Persistence
 
 Redis is disabled by default in which case data is buffered in memory.
 
@@ -61,10 +61,12 @@ redis:
   db: 0
 ```
 
-### Consumers
+### Output
+
+provides declarative information about consumers which *bulklog* output data to.
 
 ```yaml
-consumers: 
+output: 
  
   elasticsearch:
     enabled: true

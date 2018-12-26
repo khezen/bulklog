@@ -28,7 +28,7 @@ type redisBuffer struct {
 // RedisBuffer -
 func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consumers ...consumer.Interface) (Buffer, error) {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisConfig.Address,
+		Addr:     redisConfig.Endpoint,
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
 	})

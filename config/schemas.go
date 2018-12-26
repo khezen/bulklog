@@ -8,7 +8,7 @@ import (
 // Config contains all configuration for the logger
 type Config struct {
 	Redis       Redis               `yaml:"redis"`
-	Consumers   Consumers           `yaml:"consumers"`
+	Output      Consumers           `yaml:"output"`
 	Collections []collection.Config `yaml:"collections,flow"`
 }
 
@@ -20,7 +20,7 @@ type Consumers struct {
 // Redis -
 type Redis struct {
 	Enabled  bool   `yaml:"enabled"`
-	Address  string `yaml:"address"`
+	Endpoint string `yaml:"endpoint"`
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
 }
