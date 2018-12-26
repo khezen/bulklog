@@ -33,12 +33,15 @@ func presetRedisConvey(
 		return
 	}
 	var (
-		consumers   []consumer.Interface
-		iter        int
-		latestTryAt time.Time
-		waitFor     time.Duration
-		timer       *time.Timer
-		done        bool
+		consumers           []consumer.Interface
+		dieAt               = startedAt.Add(retentionPeriod)
+		dieAtUnixNano       = dieAt.UnixNano()
+		currentTimeUnixNano int64
+		nextTryAtUnixNano   int64
+		iter                int
+		latestTryAt         time.Time
+		waitFor             time.Duration
+		timer               *time.Timer
 	)
 	for {
 		latestTryAt = time.Now().UTC()
@@ -74,17 +77,14 @@ func presetRedisConvey(
 					}
 				}
 			}
-			if len(consumers) == 0 || time.Since(startedAt) > retentionPeriod {
-				err = deletePipe(tx, pipeKey)
-				if err != nil {
-					fmt.Println(err)
-					err = nil
-				}
-				done = true
-				return
-			}
 		}()
-		if done {
+		currentTimeUnixNano = time.Now().UTC().UnixNano()
+		if len(consumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
+			err = deletePipe(red, pipeKey)
+			if err != nil {
+				fmt.Println(err)
+				err = nil
+			}
 			return
 		}
 		iter, err = getIter(red, pipeKey)
@@ -93,6 +93,15 @@ func presetRedisConvey(
 			return
 		}
 		waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iter))) - time.Since(latestTryAt)
+		nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)
+		if nextTryAtUnixNano > dieAtUnixNano {
+			err = deletePipe(red, pipeKey)
+			if err != nil {
+				fmt.Println(err)
+				err = nil
+			}
+			return
+		}
 		iter++
 		err = setIter(red, pipeKey, iter)
 		if err != nil {

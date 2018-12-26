@@ -35,7 +35,7 @@ A collection is a set of schemas.
 ### Docker
 `docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable`
 #### Supported tags
-* `1.0.1`, `1.0`, `1`, `stable`, `latest`
+* `1.0.2`, `1.0`, `1`, `stable`, `latest`
 
 ---
 
@@ -222,6 +222,6 @@ If you have any problems or questions, please ask for help through a [GitHub iss
 
 ## Contributions
 
-Help is always welcome! For example, documentation (like the text you are reading now) can always use improvement. There's always code that can be clarified and variables or functions that can be renamed or commented. If you ever see something you think should be fixed, you should own it. Here is how you get started. If you have no idea what to start on, you can browse the issues labeled with [help wanted](https://github.com/khezen/bulklog/labels/help%20wanted).
+Help is always welcome! For example, documentation (like the text you are reading now) can always use improvement. There's always code that can be improved. If you ever see something you think should be fixed, you should own it. If you have no idea what to start on, you can browse the issues labeled with [help wanted](https://github.com/khezen/bulklog/labels/help%20wanted).
 
 As a potential contributor, your changes and ideas are welcome at any hour of the day or night, weekdays, weekends, and holidays. Please do not ever hesitate to ask a question or send a pull request.

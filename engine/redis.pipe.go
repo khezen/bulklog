@@ -35,7 +35,15 @@ func getPipe(red *redis.Client, pipeKey string) (
 	return startedAt, retryPeriod, retentionPeriod, nil
 }
 
-func deletePipe(tx redis.Pipeliner, pipeKey string) (err error) {
+func deletePipe(red *redis.Client, pipeKey string) (err error) {
+	tx := red.TxPipeline()
+	defer func() {
+		if err != nil {
+			tx.Discard()
+		} else {
+			tx.Exec()
+		}
+	}()
 	_, err = tx.Del(pipeKey).Result()
 	if err != nil {
 		return err
