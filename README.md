@@ -41,7 +41,7 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.3`, `1.0`, `1`, `stable`
+* `1.0.4`, `1.0`, `1`, `stable`
 
 ---
 
@@ -191,7 +191,7 @@ map of fields by field name
 ### Collection
 
 ```http
-POST /bulklog/{collectionName}/{schemaName} HTTP/1.1
+POST /v1/{collectionName}/{schemaName} HTTP/1.1
 Content-Type: application/json
 {
   ...
@@ -203,7 +203,7 @@ HTTP/1.1 200 OK
 example:
 
 ```http
-POST /bulklog/logs/log HTTP/1.1
+POST /v1/logs/log HTTP/1.1
 Content-Type: application/json
 {
   "source":"service1",
@@ -218,7 +218,7 @@ HTTP/1.1 200 OK
 ### Health
 
 ```http
-GET /bulklog/health HTTP/1.1
+GET /v1/health HTTP/1.1
 
 HTTP/1.1 200 OK
 ```
