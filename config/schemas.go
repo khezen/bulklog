@@ -7,6 +7,7 @@ import (
 
 // Config contains all configuration for the logger
 type Config struct {
+	Port        int                 `yaml:"port"`
 	Redis       Redis               `yaml:"redis"`
 	Output      Consumers           `yaml:"output"`
 	Collections []collection.Config `yaml:"collections,flow"`
