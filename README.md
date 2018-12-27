@@ -3,11 +3,11 @@
 
 Collects, buffers, and outputs logs across multiple sources and destinations.
 
-![](https://github.com/khezen/bulklog/raw/master/icon.png)
+![icon.png](https://github.com/khezen/bulklog/raw/master/icon.png)
 
 *bulklog* is written in go and requires little resource.
 
-*bulklog* supports memory and [redis](https://redis.io/topics/persistence) buffering to prevent data loss. 
+*bulklog* supports memory and [redis](https://redis.io/topics/persistence) buffering to prevent data loss.
 *bulklog* also supports failover and can be set up for high availability.
 
 ---
@@ -34,18 +34,20 @@ A collection is a set of schemas.
 
 ### Docker
 
+[![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://hub.docker.com/r/khezen/bulklog/)
+
 ```bash
 docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 ```
 
 #### Supported tags
 
-* `latest`
-* `1.0.4`, `1.0`, `1`, `stable`
+* latest
+* 1.0.4, 1.0, 1, stable
 
 ---
 
-## Config 
+## Config
 
 Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
@@ -66,8 +68,8 @@ redis:
 provides declarative information about consumers which *bulklog* output data to.
 
 ```yaml
-output: 
- 
+output:
+
   elasticsearch:
     enabled: true
     addr: http://localhost:9200
@@ -76,7 +78,7 @@ output:
 #     access_key_id: changeme
 #     secret_access_key: changeme
 #     region: eu-west-1
-#   basic_auth: 
+#   basic_auth:
 #     username: elastic
 #     password: changeme
 ```
@@ -94,27 +96,27 @@ collections:
 
   schemas:
     trace:
-      source: 
+      source:
         type: string
-      request_id: 
+      request_id:
         type: string
         length: 36
-      client_ip: 
+      client_ip:
         type: string
-      host: 
+      host:
         type: string
-      path: 
+      path:
         type: string
-      method: 
+      method:
         type: string
         max_length: 6
-      request_dump: 
+      request_dump:
         type: string
-      status_code: 
+      status_code:
         type: int16
-      response_dump: 
+      response_dump:
         type: string
-      response_time_ms: 
+      response_time_ms:
         type: int32
 ```
 
@@ -122,7 +124,7 @@ collections:
 
 * **name**: `{collection name}`
 * **flush_period**: `{duration}`
-  * flush buffer and output data to consumers every `{duration}` 
+  * flush buffer and output data to consumers every `{duration}`
 * **retention_period**: `{duration}`
   * if a consumer is unavailable, **retention_period** set how long *bulklog* tries to output data to this consumer
   * if the consumer is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other consumers.
@@ -139,8 +141,7 @@ map of fields by field name
 * **max_length**: `{field maximum length}` (optional, string only)
 * **date_format**: `{date time formatting}` (optional, datetime only)
 
-
-##### supported types:
+##### supported types
 
 * **bool** : `True` or `False`
 
@@ -158,8 +159,8 @@ map of fields by field name
 * **float64** : `-1.797693134862315708145274237317043567981e+308` to `1.797693134862315708145274237317043567981e+308`
 
 * **string** : sequence of characters
-   * **lenght**: string exact length
-   * **max_length**: string maximum length
+  * **lenght**: string exact length
+  * **max_length**: string maximum length
 
 * **datetime** : `1970-01-01T00:00:00.000000000Z` (example)
   * *bulklog* doesn't check the date format. Most consumers accept any even if it defers from the configured one
@@ -182,13 +183,13 @@ map of fields by field name
     * `2006-01-02 15:04:05 MST`
     * `2006-01-02 15:04:05.999999999 MST`
 
-* **object** : inner document 
+* **object** : inner document
 
 ---
 
 ## API
 
-### Collection
+### push document
 
 ```http
 POST /v1/{collectionName}/{schemaName} HTTP/1.1
@@ -226,6 +227,7 @@ HTTP/1.1 200 OK
 ---
 
 ## Issues
+
 If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).
 
 ## Contributions
