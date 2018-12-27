@@ -58,7 +58,7 @@ Redis is disabled by default in which case data is buffered in memory.
 ```yaml
 redis:
   enabled: true
-  address: http://localhost:6379
+  endpoint: http://localhost:6379
   password: changeme
   db: 0
 ```
@@ -72,7 +72,7 @@ output:
 
   elasticsearch:
     enabled: true
-    addr: http://localhost:9200
+    endpoint: http://localhost:9200
     shards: 1
 #   aws_auth:
 #     access_key_id: changeme
