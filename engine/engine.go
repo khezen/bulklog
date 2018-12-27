@@ -31,8 +31,8 @@ func New(cfg *config.Config) (Engine, error) {
 			schemas[collec.Name][schema.Name] = struct{}{}
 		}
 		var buffer Buffer
-		if cfg.Redis.Enabled {
-			buffer, err = RedisBuffer(collec, cfg.Redis, consumers...)
+		if cfg.Persistence.Enabled {
+			buffer, err = RedisBuffer(collec, cfg.Persistence.Redis, consumers...)
 			if err != nil {
 				return nil, err
 			}

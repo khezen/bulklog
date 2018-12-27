@@ -1,14 +1,14 @@
 ---
 port: 5000
 
+persistence:
+  enabled: false
 # redis:
-#   enabled: false
 #   endpoint: http://localhost:6379
 #   password: changeme
 #   db: 0
 
 output: 
- 
   elasticsearch:
     enabled: true
     endpoint: http://localhost:9200
@@ -22,7 +22,6 @@ output:
 #     password: changeme
 
 collections:
-
 - name: logs
   flush_period: 5 seconds # hours|minutes|seconds|milliseconds
   retention_period: 45 minutes
@@ -36,7 +35,6 @@ collections:
         type: string
       request_id: 
         type: string
-
 - name: web
   flush_period: 5 seconds # hours|minutes|seconds|milliseconds
   retention_period: 45 minutes

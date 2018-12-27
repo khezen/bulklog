@@ -59,14 +59,17 @@ Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
 ### Persistence
 
-Redis is disabled by default in which case data is buffered in memory.
+Peristence is disabled by default in which case data is buffered in memory.
+If enabled, it uses Redis to persist documents buffer. 
+[Learn how to tune Redis persistence](https://redis.io/topics/persistence) for your requirements. 
 
 ```yaml
-redis:
+persistence:
   enabled: true
-  endpoint: http://localhost:6379
-  password: changeme
-  db: 0
+  redis:
+    endpoint: http://localhost:6379
+    password: changeme
+    db: 0
 ```
 
 ### Output
