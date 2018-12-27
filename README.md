@@ -222,7 +222,7 @@ Content-Type: application/json
 HTTP/1.1 200 OK
 ```
 
-### Health
+### health
 
 ```http
 GET /v1/liveness HTTP/1.1
