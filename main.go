@@ -5,17 +5,12 @@ import (
 	"github.com/khezen/bulklog/server"
 )
 
-var (
-	configFile = "/etc/bulklog/config.yaml"
-)
-
 func main() {
 	quit := make(chan error)
 	var err error
 	cfg, err := config.Get()
-	if cfg == nil {
-		config.Set("config.yaml")
-		cfg, err = config.Get()
+	if err != nil {
+		panic(err)
 	}
 	server, err := server.New(cfg, quit)
 	if err != nil {

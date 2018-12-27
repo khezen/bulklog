@@ -45,6 +45,12 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 * `latest`
 * `1.0.5`, `1.0`, `1`, `stable`
 
+#### ENV
+
+| key | Description | Default Value|
+|---|---|---|
+|CONFIG_PATH|path to the configuration folder|/etc/bulklog|
+
 ---
 
 ## Config

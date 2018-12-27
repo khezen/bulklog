@@ -18,5 +18,6 @@ COPY --from=build /default/config.yaml /default/config.yaml
 COPY --from=build /entrypoint.sh /entrypoint.sh
 COPY --from=build /bin/bulklog /bin/bulklog
 RUN apk add --no-cache ca-certificates
+ENV CONFIG_PATH /etc/bulklog
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bulklog"]

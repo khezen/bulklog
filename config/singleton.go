@@ -1,43 +1,34 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
-	"sync"
+	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
 var (
 	singleton *Config
-	path      = "/etc/bulklog/config.yaml"
-	mut       = sync.RWMutex{}
 )
-
-// Set the config
-func Set(configPath string) {
-	mut.Lock()
-	defer mut.Unlock()
-	singleton = nil
-	path = configPath
-}
 
 // Get the config
 func Get() (config *Config, err error) {
-	config = getSingleton()
-	if config != nil {
-		return config, nil
+	if singleton != nil {
+		return singleton, nil
 	}
-	mut.Lock()
-	defer mut.Unlock()
-	config, err = loadConfig(path)
+	singleton, err = loadConfig()
 	if err != nil {
 		return nil, err
 	}
-	singleton = config
-	return config, nil
+	return singleton, nil
 }
 
-func loadConfig(configFile string) (*Config, error) {
+func loadConfig() (*Config, error) {
+	// where is config?
+	configPath := strings.TrimRight(os.Getenv("CONFIG_PATH"), "/")
+	configFile := fmt.Sprintf("%s/config.yaml", configPath)
 	// Load config file
 	bytes, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -49,10 +40,4 @@ func loadConfig(configFile string) (*Config, error) {
 		return nil, err
 	}
 	return &config, nil
-}
-
-func getSingleton() *Config {
-	mut.RLock()
-	defer mut.RUnlock()
-	return singleton
 }
