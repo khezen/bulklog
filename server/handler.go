@@ -8,7 +8,7 @@ import (
 	"github.com/khezen/bulklog/collection"
 )
 
-// POST /bulklog/v1/{collection}/{schema}
+// POST /v1/{collection}/{schema}
 func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		s.serveError(w, r, ErrWrongMethod)
@@ -33,7 +33,12 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// GET /bulklog/health
-func (s *Server) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
+// GET /v1/liveness
+func (s *Server) handleLiveness(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+// GET /v1/readiness
+func (s *Server) handleReadiness(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
