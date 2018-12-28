@@ -17,7 +17,8 @@ type engine struct {
 func New(cfg *config.Config) (Engine, error) {
 	consumers := make([]consumer.Interface, 0, 5)
 	if cfg.Output.Elastic != nil {
-		consumers = append(consumers, elastic.New(*cfg.Output.Elastic))
+		elasticsearch := elastic.New(*cfg.Output.Elastic)
+		consumers = append(consumers, elasticsearch)
 	}
 	schemas := make(map[collection.Name]map[collection.SchemaName]struct{})
 	buffers := make(map[collection.Name]Buffer)
@@ -25,6 +26,12 @@ func New(cfg *config.Config) (Engine, error) {
 		collec, err := collection.New(collecCfg)
 		if err != nil {
 			return nil, err
+		}
+		for _, cons := range consumers {
+			err = cons.Ensure(collec)
+			if err != nil {
+				return nil, err
+			}
 		}
 		schemas[collec.Name] = make(map[collection.SchemaName]struct{})
 		for _, schema := range collec.Schemas {

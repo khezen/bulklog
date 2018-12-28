@@ -77,7 +77,7 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 }
 
 // Ensure creates a template in Elasticsearch
-func (c *Elastic) Ensure(collection collection.Collection) error {
+func (c *Elastic) Ensure(collection *collection.Collection) error {
 	endpoint := fmt.Sprintf("%s/%s", c.templateEndpoint, collection.Name)
 	elasticIndex := RenderElasticIndex(collection, c.indeSettings)
 	elasticIndexBytes, err := json.Marshal(elasticIndex)

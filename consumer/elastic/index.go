@@ -37,7 +37,7 @@ type Field struct {
 }
 
 // RenderElasticIndex - render elasticsearch mapping
-func RenderElasticIndex(collect collection.Collection, settings IndexSettings) Index {
+func RenderElasticIndex(collect *collection.Collection, settings IndexSettings) Index {
 	index := Index{
 		Template: fmt.Sprintf("%s-*", collect.Name),
 		Settings: settings,
