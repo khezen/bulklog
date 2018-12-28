@@ -10,13 +10,13 @@ import (
 
 // POST /v1/{collection}/{schema}
 func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		s.serveError(w, r, ErrWrongMethod)
-	}
 	urlSplit := strings.Split(strings.Trim(strings.ToLower(r.URL.Path), "/"), "/")
 	if len(urlSplit) != 3 {
 		s.serveError(w, r, ErrPathNotFound)
 		return
+	}
+	if r.Method != http.MethodPost {
+		s.serveError(w, r, ErrWrongMethod)
 	}
 	collectionName := collection.Name(urlSplit[1])
 	schemaName := collection.SchemaName(urlSplit[2])
