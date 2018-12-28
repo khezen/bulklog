@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/khezen/bulklog/auth"
@@ -69,9 +70,16 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 	if err != nil {
 		return err
 	}
-	_, err = httpClient.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return err
+	}
+	if res.StatusCode > 300 {
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("elasticsearch: %b", resBody)
+		}
+		return fmt.Errorf("elasticsearch: %s", res.Status)
 	}
 	return nil
 }

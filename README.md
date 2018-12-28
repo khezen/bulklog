@@ -135,6 +135,9 @@ collections:
           type: string
         response_time_ms:
           type: int32
+        time:
+          type: datetime
+          date_format: 2006-01-02T15:04:05.999999999Z07:00
 ```
 
 #### collection
@@ -227,7 +230,8 @@ Content-Type: application/json
   "source":"service1",
   "request_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
   "level": "Fatal",
-  "message": "divizion by zero"
+  "message": "divizion by zero",
+  "time": "2018-11-15T14:12:12Z"
 }
 
 HTTP/1.1 200 OK

@@ -26,6 +26,7 @@ func convey(documents []collection.Document, consumers []consumer.Interface, ret
 		cons                consumer.Interface
 	)
 	for {
+		fmt.Println("try convey - ", "consumers:", len(consumers), "documents:", len(documents))
 		latestTryAt = time.Now().UTC()
 		for _, cons = range consumers {
 			err = cons.Digest(documents)

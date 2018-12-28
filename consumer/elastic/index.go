@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/khezen/bulklog/collection"
 )
@@ -12,7 +11,7 @@ import (
 // Index - elasticsearch index definition
 // ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html
 type Index struct {
-	Template string        `json:"template"`
+	Pattern  string        `json:"index_patterns"`
 	Settings IndexSettings `json:"settings"`
 	Mappings Mappings      `json:"mappings"`
 }
@@ -33,13 +32,14 @@ type Mapping struct {
 
 // Field -
 type Field struct {
-	Type string `json:"type"`
+	Type   string `json:"type"`
+	Format string `json:"format,omitemtpy"`
 }
 
 // RenderElasticIndex - render elasticsearch mapping
 func RenderElasticIndex(collect *collection.Collection, settings IndexSettings) Index {
 	index := Index{
-		Template: fmt.Sprintf("%s-*", collect.Name),
+		Pattern:  fmt.Sprintf("%s-*", collect.Name),
 		Settings: settings,
 		Mappings: make(map[collection.SchemaName]Mapping),
 	}
@@ -67,7 +67,7 @@ func translateType(field collection.Field) string {
 	case collection.Float32, collection.Float64:
 		return "double"
 	case collection.DateTime:
-		return "time"
+		return "date"
 	case collection.Object:
 		return "object"
 	case collection.String:
@@ -96,7 +96,6 @@ func Digest(d collection.Document) ([]byte, error) {
 	docDescription["_index"] = RenderIndexName(d)
 	docDescription["_type"] = d.SchemaName
 	docDescription["_id"] = d.ID
-	docDescription["post_date"] = d.PostedAt.Format(time.RFC3339)
 	request["index"] = docDescription
 	body, err := json.Marshal(request)
 	if err != nil {
