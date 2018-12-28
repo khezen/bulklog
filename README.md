@@ -79,7 +79,7 @@ persistence:
   enabled: true
   redis:
     endpoint: http://localhost:6379
-    password: changeme
+    password: changeme #(optional)
     db: 0
 ```
 
