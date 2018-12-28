@@ -75,9 +75,12 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return err
 	}
-	latestFlushAt, err := time.Parse(time.RFC3339Nano, latestFlushAtStr)
-	if err != nil {
-		return err
+	var latestFlushAt time.Time
+	if latestFlushAtStr != "" {
+		latestFlushAt, err = time.Parse(time.RFC3339Nano, latestFlushAtStr)
+		if err != nil {
+			return err
+		}
 	}
 	if time.Since(latestFlushAt) < b.collection.FlushPeriod {
 		b.flushedAt = latestFlushAt

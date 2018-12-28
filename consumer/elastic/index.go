@@ -33,7 +33,7 @@ type Mapping struct {
 // Field -
 type Field struct {
 	Type   string `json:"type"`
-	Format string `json:"format,omitemtpy"`
+	Format string `json:"format,omitempty"`
 }
 
 // RenderElasticIndex - render elasticsearch mapping
