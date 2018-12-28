@@ -99,11 +99,11 @@ func Digest(d collection.Document) ([]byte, error) {
 	docDescription["post_date"] = d.PostedAt.Format(time.RFC3339)
 	request["index"] = docDescription
 	body, err := json.Marshal(request)
-	body = append(body, '\n')
-	body = append(body, d.Body...)
-	body = append(body, '\n')
 	if err != nil {
 		return nil, err
 	}
+	body = append(body, '\n')
+	body = append(body, d.Body...)
+	body = append(body, '\n')
 	return body, nil
 }
