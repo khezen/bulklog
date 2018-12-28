@@ -43,13 +43,24 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.5`, `1.0`, `1`, `stable`
+* `1.0.6`, `1.0`, `1`, `stable`
 
 #### ENV
 
 | key | Description | Default Value|
 |---|---|---|
 |CONFIG_PATH|path to the configuration folder|/etc/bulklog|
+
+### Kubernetes
+
+#### Helm
+
+Deploy bulklog to a kubernetes cluster using Helm.
+
+```bash
+helm repo add khezen https://khezen.github.com/charts
+helm install khezen/bulklog --name=bulklog --namespace=monitoring
+```
 
 ---
 
@@ -78,7 +89,6 @@ provides declarative information about consumers which *bulklog* output data to.
 
 ```yaml
 output:
-
   elasticsearch:
     enabled: true
     endpoint: http://localhost:9200
@@ -98,35 +108,33 @@ example:
 
 ```yaml
 collections:
-
-- name: web
-  flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-  retention_period: 45 minutes
-
-  schemas:
-    trace:
-      source:
-        type: string
-      request_id:
-        type: string
-        length: 36
-      client_ip:
-        type: string
-      host:
-        type: string
-      path:
-        type: string
-      method:
-        type: string
-        max_length: 6
-      request_dump:
-        type: string
-      status_code:
-        type: int16
-      response_dump:
-        type: string
-      response_time_ms:
-        type: int32
+  - name: web
+    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
+    retention_period: 45 minutes
+    schemas:
+      trace:
+        source:
+          type: string
+        request_id:
+          type: string
+          length: 36
+        client_ip:
+          type: string
+        host:
+          type: string
+        path:
+          type: string
+        method:
+          type: string
+          max_length: 6
+        request_dump:
+          type: string
+        status_code:
+          type: int16
+        response_dump:
+          type: string
+        response_time_ms:
+          type: int32
 ```
 
 #### collection
