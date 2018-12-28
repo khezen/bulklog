@@ -78,7 +78,7 @@ If enabled, it uses Redis to persist documents buffer.
 persistence:
   enabled: true
   redis:
-    endpoint: http://localhost:6379
+    endpoint: localhost:6379
     password: changeme #(optional)
     db: 0 #(optional, default:0)
 ```

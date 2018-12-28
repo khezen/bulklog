@@ -4,14 +4,15 @@ port: 5000
 persistence:
   enabled: false
 # redis:
-#   endpoint: http://localhost:6379
+#   endpoint: localhost:6379
 #   password: changeme
 #   db: 0
 
 output: 
   elasticsearch:
     enabled: true
-    endpoint: http://localhost:9200
+    endpoint: localhost:9200
+    scheme: http
     shards: 1
 #   aws_auth:
 #     access_key_id: changeme

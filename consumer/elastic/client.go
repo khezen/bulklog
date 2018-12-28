@@ -27,8 +27,8 @@ type Elastic struct {
 
 // New returns a elasticsearch as a consumer
 func New(cfg Config) consumer.Interface {
-	bulkEndpoint := fmt.Sprintf("%s/_bulk", cfg.Endpoint)
-	createTemplateEndpoint := fmt.Sprintf("%s/_template", cfg.Endpoint)
+	bulkEndpoint := fmt.Sprintf("%s://%s/_bulk", cfg.Scheme, cfg.Endpoint)
+	createTemplateEndpoint := fmt.Sprintf("%s://%s/_template", cfg.Scheme, cfg.Endpoint)
 	var signer auth.Signer
 	switch {
 	case cfg.AWSAuth != nil:
