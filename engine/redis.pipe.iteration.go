@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func getRedisIteration(tx redis.Pipeliner, pipeKey string) (i int, err error) {
+func getRedisPipeIteration(tx redis.Pipeliner, pipeKey string) (i int, err error) {
 	iStr, err := tx.HGet(pipeKey, "iteration").Result()
 	if err != nil {
 		return -1, err
@@ -14,12 +14,12 @@ func getRedisIteration(tx redis.Pipeliner, pipeKey string) (i int, err error) {
 	return strconv.Atoi(iStr)
 }
 
-func setRedisIteration(tx redis.Pipeliner, pipeKey string, iter int) (err error) {
+func setRedisPipeIteration(tx redis.Pipeliner, pipeKey string, iter int) (err error) {
 	_, err = tx.HSet(pipeKey, "iteration", iter).Result()
 	return err
 }
 
-func incrRedisIteration(tx redis.Pipeliner, pipeKey string) (err error) {
+func incrRedisPipeIteration(tx redis.Pipeliner, pipeKey string) (err error) {
 	_, err = tx.HIncrBy(pipeKey, "iteration", 1).Result()
 	return err
 }

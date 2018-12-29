@@ -46,7 +46,7 @@ func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consum
 	if err != nil {
 		return nil, err
 	}
-	redisConveyAll(rbuffer.redis, rbuffer.pipeKeyPrefix)
+	redisConveyAll(rbuffer.redis, rbuffer.pipeKeyPrefix, rbuffer.consumers)
 	return rbuffer, nil
 }
 
@@ -92,11 +92,11 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return err
 	}
-	err = setRedisDocuments(tx, b.bufferKey, pipeKey)
+	err = addRedisPipeConsumers(tx, pipeKey, b.consumers)
 	if err != nil {
 		return err
 	}
-	err = addRedisConsumers(tx, pipeKey, b.consumers)
+	err = flushBuffer2RedisPipe(tx, b.bufferKey, pipeKey)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (b *redisBuffer) Flush() (err error) {
 		return err
 	}
 	b.flushedAt = now
-	go presetRedisConvey(b.redis, pipeKey, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
+	go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
 

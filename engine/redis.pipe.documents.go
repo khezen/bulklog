@@ -10,12 +10,12 @@ import (
 	"github.com/khezen/bulklog/collection"
 )
 
-func setRedisDocuments(tx redis.Pipeliner, bufferKey, pipeKey string) (err error) {
+func flushBuffer2RedisPipe(tx redis.Pipeliner, bufferKey, pipeKey string) (err error) {
 	_, err = tx.Rename(bufferKey, fmt.Sprintf("%s.buffer", pipeKey)).Result()
 	return err
 }
 
-func getRedisDocuments(red *redis.Client, pipeKey string) (documents []collection.Document, err error) {
+func getRedisPipeDocuments(red *redis.Client, pipeKey string) (documents []collection.Document, err error) {
 	bufferKey := fmt.Sprintf("%s.buffer", pipeKey)
 	documentsLen, err := red.LLen(bufferKey).Result()
 	if err != nil {
@@ -43,7 +43,7 @@ func getRedisDocuments(red *redis.Client, pipeKey string) (documents []collectio
 	return documents, nil
 }
 
-func deleteRedisDocuments(tx redis.Pipeliner, pipeKey string) (err error) {
+func deleteRedisPipeDocuments(tx redis.Pipeliner, pipeKey string) (err error) {
 	_, err = tx.Del(fmt.Sprintf("%s.buffer", pipeKey)).Result()
 	return err
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func redisConvey(red *redis.Client, pipeKey string) {
+func redisConvey(red *redis.Client, pipeKey string, consumers map[string]consumer.Interface) {
 	startedAt, retryPeriod, retentionPeriod, err := getRedisPipe(red, pipeKey)
 	if err != nil {
 		fmt.Println(err)
@@ -19,6 +19,7 @@ func redisConvey(red *redis.Client, pipeKey string) {
 	}
 	presetRedisConvey(
 		red, pipeKey,
+		consumers,
 		startedAt,
 		retryPeriod, retentionPeriod,
 	)
@@ -26,15 +27,16 @@ func redisConvey(red *redis.Client, pipeKey string) {
 
 func presetRedisConvey(
 	red *redis.Client, pipeKey string,
+	consumers map[string]consumer.Interface,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
-	documents, err := getRedisDocuments(red, pipeKey)
+	documents, err := getRedisPipeDocuments(red, pipeKey)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	var (
-		consumers           map[string]consumer.Interface
+		remainingConsumers  map[string]consumer.Interface
 		dieAt               = startedAt.Add(retentionPeriod)
 		dieAtUnixNano       = dieAt.UnixNano()
 		currentTimeUnixNano int64
@@ -58,13 +60,13 @@ func presetRedisConvey(
 					tx.Exec()
 				}
 			}()
-			consumers, err = getRedisConsumers(tx, pipeKey)
+			remainingConsumers, err = getRedisPipeConsumers(tx, pipeKey, consumers)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 			wg = sync.WaitGroup{}
-			for consumerName, cons := range consumers {
+			for consumerName, cons := range remainingConsumers {
 				wg.Add(1)
 				go func(consumerName string, cons consumer.Interface) {
 					err = cons.Digest(documents)
@@ -72,12 +74,11 @@ func presetRedisConvey(
 						fmt.Println(err)
 						err = nil
 					} else {
-						err = delRedisConsumer(tx, pipeKey, consumerName)
+						err = deleteRedisPipeConsumer(tx, pipeKey, consumerName)
 						if err != nil {
 							fmt.Println(err)
 							err = nil
 						}
-						delete(consumers, consumerName)
 					}
 					wg.Done()
 				}(consumerName, cons)
@@ -94,7 +95,7 @@ func presetRedisConvey(
 				}
 			}()
 			currentTimeUnixNano = time.Now().UTC().UnixNano()
-			if len(consumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
+			if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
 				err = deleteRedisPipe(tx, pipeKey)
 				if err != nil {
 					fmt.Println(err)
@@ -103,7 +104,7 @@ func presetRedisConvey(
 					return
 				}
 			}
-			iteration, err = getRedisIteration(tx, pipeKey)
+			iteration, err = getRedisPipeIteration(tx, pipeKey)
 			if err != nil {
 				fmt.Println(err)
 				waitFor = retryPeriod - time.Since(latestTryAt)
@@ -120,7 +121,7 @@ func presetRedisConvey(
 					return
 				}
 			}
-			err = incrRedisIteration(tx, pipeKey)
+			err = incrRedisPipeIteration(tx, pipeKey)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -137,7 +138,7 @@ func presetRedisConvey(
 	}
 }
 
-func redisConveyAll(red *redis.Client, pipeKeyPrefix string) {
+func redisConveyAll(red *redis.Client, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
 	var (
 		pattern     = fmt.Sprintf(`%s\..{36}$`, pipeKeyPrefix)
 		maxTries    = 20
@@ -154,7 +155,7 @@ func redisConveyAll(red *redis.Client, pipeKeyPrefix string) {
 			continue
 		}
 		for _, pipeKey := range keys {
-			go redisConvey(red, pipeKey)
+			go redisConvey(red, pipeKey, consumers)
 		}
 		success = true
 		break

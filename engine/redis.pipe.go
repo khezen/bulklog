@@ -47,7 +47,7 @@ func newRedisPipe(tx redis.Pipeliner, pipeKey string, flushPeriod, retentionPeri
 	if err != nil {
 		return err
 	}
-	err = setRedisIteration(tx, pipeKey, 0)
+	err = setRedisPipeIteration(tx, pipeKey, 0)
 	return err
 }
 
@@ -56,6 +56,10 @@ func deleteRedisPipe(tx redis.Pipeliner, pipeKey string) (err error) {
 	if err != nil {
 		return err
 	}
-	err = deleteRedisDocuments(tx, pipeKey)
+	err = deleteRedisPipeConsumers(tx, pipeKey)
+	if err != nil {
+		return err
+	}
+	err = deleteRedisPipeDocuments(tx, pipeKey)
 	return err
 }
