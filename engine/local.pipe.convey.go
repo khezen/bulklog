@@ -29,7 +29,6 @@ func convey(documents []collection.Document, consumers map[string]consumer.Inter
 		wg                  sync.WaitGroup
 	)
 	for {
-		fmt.Println("try convey - ", "consumers:", len(consumers), "documents:", len(documents))
 		latestTryAt = time.Now().UTC()
 		wg = sync.WaitGroup{}
 		for consumerName, cons = range consumers {

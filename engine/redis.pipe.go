@@ -12,22 +12,29 @@ func getRedisPipe(red *redis.Client, pipeKey string) (
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration,
 	err error) {
-	retryPeriodStr, err := red.HGet(pipeKey, "retryPeriodNano").Result()
+	var stringCmder *redis.StringCmd
+	stringCmder = red.HGet(pipeKey, "retryPeriodNano")
+	err = stringCmder.Err()
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retryPeriodNano).%s", err.Error())
 	}
+	retryPeriodStr := stringCmder.Val()
 	retryPeriodInt, err := strconv.Atoi(retryPeriodStr)
 	retryPeriod = time.Duration(retryPeriodInt)
-	retentionPeriodStr, err := red.HGet(pipeKey, "retentionPeriodNano").Result()
+	stringCmder = red.HGet(pipeKey, "retentionPeriodNano")
+	err = stringCmder.Err()
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retentionPeriodNano).%s", err.Error())
 	}
+	retentionPeriodStr := stringCmder.Val()
 	retentionPeriodInt, err := strconv.Atoi(retentionPeriodStr)
 	retentionPeriod = time.Duration(retentionPeriodInt)
-	startedAtStr, err := red.HGet(pipeKey, "startedAt").Result()
+	stringCmder = red.HGet(pipeKey, "startedAt")
+	err = stringCmder.Err()
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey startedAt).%s", err.Error())
 	}
+	startedAtStr := stringCmder.Val()
 	startedAt, err = time.Parse(time.RFC3339Nano, startedAtStr)
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("parseStartedAtStr.%s", err.Error())
@@ -35,16 +42,20 @@ func getRedisPipe(red *redis.Client, pipeKey string) (
 	return startedAt, retryPeriod, retentionPeriod, nil
 }
 
-func newRedisPipe(tx redis.Pipeliner, pipeKey string, retryPeriod, retentionPeriod time.Duration, startedAt time.Time) (err error) {
-	_, err = tx.HSet(pipeKey, "retryPeriodNano", int64(retryPeriod)).Result()
+func newRedisPipe(tx *redis.Tx, pipeKey string, retryPeriod, retentionPeriod time.Duration, startedAt time.Time) (err error) {
+	var boolCmder *redis.BoolCmd
+	boolCmder = tx.HSet(pipeKey, "retryPeriodNano", int64(retryPeriod))
+	err = boolCmder.Err()
 	if err != nil {
 		return fmt.Errorf("(HSET pipeKey retryPeriodNano %d).%s", retryPeriod, err.Error())
 	}
-	_, err = tx.HSet(pipeKey, "retentionPeriodNano", int64(retentionPeriod)).Result()
+	boolCmder = tx.HSet(pipeKey, "retentionPeriodNano", int64(retentionPeriod))
+	err = boolCmder.Err()
 	if err != nil {
 		return fmt.Errorf("(HSET pipeKey retentionPeriodNano %d).%s", retentionPeriod, err.Error())
 	}
-	_, err = tx.HSet(pipeKey, "startedAt", startedAt.Format(time.RFC3339Nano)).Result()
+	boolCmder = tx.HSet(pipeKey, "startedAt", startedAt.Format(time.RFC3339Nano))
+	err = boolCmder.Err()
 	if err != nil {
 		return fmt.Errorf("(HSET pipeKey startedAt %s).%s", startedAt.Format(time.RFC3339Nano), err.Error())
 	}
@@ -55,8 +66,10 @@ func newRedisPipe(tx redis.Pipeliner, pipeKey string, retryPeriod, retentionPeri
 	return nil
 }
 
-func deleteRedisPipe(tx redis.Pipeliner, pipeKey string) (err error) {
-	_, err = tx.Del(pipeKey).Result()
+func deleteRedisPipe(tx *redis.Tx, pipeKey string) (err error) {
+	var intCmder *redis.IntCmd
+	intCmder = tx.Del(pipeKey)
+	err = intCmder.Err()
 	if err != nil {
 		return fmt.Errorf("DEL pipeKey).%s", err)
 	}

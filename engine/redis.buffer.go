@@ -61,62 +61,70 @@ func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 }
 
 func (b *redisBuffer) Flush() (err error) {
-	now := time.Now().UTC()
-	tx := b.redis.TxPipeline()
-	defer func() {
+	var (
+		now              = time.Now().UTC()
+		pipeID           = uuid.New()
+		pipeKey          = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
+		pipeConsumersKey = fmt.Sprintf("%s.consumers", pipeKey)
+		pipeBufferKey    = fmt.Sprintf("%s.buffer", pipeKey)
+		intCmder         *redis.IntCmd
+		statusCmder      *redis.StatusCmd
+		length           int64
+	)
+	err = b.redis.Watch(func(tx *redis.Tx) (err error) {
+		flushedAtStr, err := tx.Get(b.timeKey).Result()
 		if err != nil {
-			err = tx.Discard()
+			return fmt.Errorf("(GET collection.flushedAt).%s", err)
+		}
+		if flushedAtStr != "" {
+			b.flushedAt, err = time.Parse(time.RFC3339Nano, flushedAtStr)
 			if err != nil {
-				fmt.Printf("DISCARD.%s)\n", err)
-			}
-		} else {
-			cmders, err := tx.Exec()
-			if err != nil {
-				fmt.Printf("EXEC.%v.%s)\n", cmders, err)
+				return fmt.Errorf("parseFlushedAtStr.%s", err)
 			}
 		}
-	}()
-	flushedAtStr, err := tx.Get(b.timeKey).Result()
-	if err != nil {
-		return fmt.Errorf("(GET collection.flushedAt).%s", err)
-	}
-	if flushedAtStr != "" {
-		b.flushedAt, err = time.Parse(time.RFC3339Nano, flushedAtStr)
-		if err != nil {
-			return fmt.Errorf("parseFlushedAtStr.%s", err)
+		if time.Since(b.flushedAt) < b.collection.FlushPeriod {
+			return
 		}
-	}
-	if time.Since(b.flushedAt) < b.collection.FlushPeriod {
-		return
-	}
-	var length int64
-	length, err = tx.LLen(b.bufferKey).Result()
+		intCmder = tx.LLen(b.bufferKey)
+		length, err = intCmder.Result()
+		if err != nil {
+			return fmt.Errorf("(LLEN bufferKey).%s", err.Error())
+		}
+		if length == 0 {
+			statusCmder = tx.Set(b.timeKey, now.Format(time.RFC3339Nano), 0)
+			err = statusCmder.Err()
+			if err != nil {
+				return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
+			}
+			b.flushedAt = now
+			return
+		}
+		pipeID := uuid.New()
+		pipeKey := fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
+		err = newRedisPipe(tx, pipeKey, b.collection.FlushPeriod, b.collection.RetentionPeriod, now)
+		if err != nil {
+			return fmt.Errorf("newRedisPipe.%s", err)
+		}
+		err = addRedisPipeConsumers(tx, pipeKey, b.consumers)
+		if err != nil {
+			return fmt.Errorf("addRedisPipeConsumers.%s", err)
+		}
+		err = flushBuffer2RedisPipe(tx, b.bufferKey, pipeKey)
+		if err != nil {
+			return fmt.Errorf("flushBuffer2RedisPipe.%s", err)
+		}
+		statusCmder = tx.Set(b.timeKey, now.Format(time.RFC3339Nano), 0)
+		err = statusCmder.Err()
+		if err != nil {
+			return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
+		}
+		b.flushedAt = now
+		go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
+		return nil
+	}, b.bufferKey, b.timeKey, pipeKey, pipeConsumersKey, pipeBufferKey)
 	if err != nil {
-		return fmt.Errorf("(LLEN bufferKey).%s", err.Error())
+		return fmt.Errorf("WATCH.%s", err)
 	}
-	if length == 0 {
-		return
-	}
-	pipeID := uuid.New()
-	pipeKey := fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
-	err = newRedisPipe(tx, pipeKey, b.collection.FlushPeriod, b.collection.RetentionPeriod, now)
-	if err != nil {
-		return fmt.Errorf("newRedisPipe.%s", err)
-	}
-	err = addRedisPipeConsumers(tx, pipeKey, b.consumers)
-	if err != nil {
-		return fmt.Errorf("addRedisPipeConsumers.%s", err)
-	}
-	err = flushBuffer2RedisPipe(tx, b.bufferKey, pipeKey)
-	if err != nil {
-		return fmt.Errorf("flushBuffer2RedisPipe.%s", err)
-	}
-	_, err = tx.Set(b.timeKey, now.Format(time.RFC3339Nano), 0).Result()
-	if err != nil {
-		return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
-	}
-	b.flushedAt = now
-	go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
 
