@@ -11,10 +11,18 @@ import (
 )
 
 func flushBuffer2RedisPipe(tx redis.Pipeliner, bufferKey, pipeKey string) (err error) {
-	_, err = tx.Rename(bufferKey, fmt.Sprintf("%s.buffer", pipeKey)).Result()
+	var length int64
+	length, err = tx.LLen(bufferKey).Result()
 	if err != nil {
-		return fmt.Errorf("RENAME(bufferKey pipeKey.buffer).%s", err.Error())
+		return fmt.Errorf("LLEN(bufferKey).%s", err.Error())
 	}
+	if length > 0 {
+		_, err = tx.Rename(bufferKey, fmt.Sprintf("%s.buffer", pipeKey)).Result()
+		if err != nil {
+			return fmt.Errorf("RENAME(bufferKey pipeKey.buffer).%s", err.Error())
+		}
+	}
+
 	return nil
 }
 

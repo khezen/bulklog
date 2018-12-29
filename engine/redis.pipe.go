@@ -65,5 +65,8 @@ func deleteRedisPipe(tx redis.Pipeliner, pipeKey string) (err error) {
 		return fmt.Errorf("deleteRedisPipeConsumers.%s", err.Error())
 	}
 	err = deleteRedisPipeDocuments(tx, pipeKey)
-	return fmt.Errorf("deleteRedisPipeDocuments.%s", err.Error())
+	if err != nil {
+		return fmt.Errorf("deleteRedisPipeDocuments.%s", err.Error())
+	}
+	return nil
 }

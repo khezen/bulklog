@@ -70,9 +70,9 @@ func (b *redisBuffer) Flush() (err error) {
 				fmt.Printf("DISCARD.%s)\n", err)
 			}
 		} else {
-			_, err = tx.Exec()
+			cmders, err := tx.Exec()
 			if err != nil {
-				fmt.Printf("EXEC.%s)\n", err)
+				fmt.Printf("EXEC.%v.%s)\n", cmders, err)
 			}
 		}
 	}()
@@ -87,6 +87,14 @@ func (b *redisBuffer) Flush() (err error) {
 		}
 	}
 	if time.Since(b.flushedAt) < b.collection.FlushPeriod {
+		return
+	}
+	var length int64
+	length, err = tx.LLen(b.bufferKey).Result()
+	if err != nil {
+		return fmt.Errorf("LLEN(bufferKey).%s", err.Error())
+	}
+	if length == 0 {
 		return
 	}
 	pipeID := uuid.New()

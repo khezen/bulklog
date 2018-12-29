@@ -48,6 +48,7 @@ func presetRedisConvey(
 		tx                  redis.Pipeliner
 		wg                  sync.WaitGroup
 		quit                bool
+		cmders              []redis.Cmder
 	)
 	for {
 		latestTryAt = time.Now().UTC()
@@ -60,9 +61,9 @@ func presetRedisConvey(
 						fmt.Printf("DISCARD.%s)\n", err)
 					}
 				} else {
-					_, err = tx.Exec()
+					cmders, err = tx.Exec()
 					if err != nil {
-						fmt.Printf("EXEC.%s)\n", err)
+						fmt.Printf("EXEC.%v.%s)\n", cmders, err)
 					}
 				}
 			}()
@@ -100,9 +101,9 @@ func presetRedisConvey(
 						fmt.Printf("DISCARD.%s)\n", err)
 					}
 				} else {
-					_, err = tx.Exec()
+					cmders, err := tx.Exec()
 					if err != nil {
-						fmt.Printf("EXEC.%s)\n", err)
+						fmt.Printf("EXEC.%v.%s)\n", cmders, err)
 					}
 				}
 			}()
