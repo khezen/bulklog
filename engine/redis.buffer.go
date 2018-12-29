@@ -17,7 +17,7 @@ import (
 type redisBuffer struct {
 	redis         *redis.Client
 	collection    *collection.Collection
-	consumers     []consumer.Interface
+	consumers     map[string]consumer.Interface
 	bufferKey     string
 	timeKey       string
 	pipeKeyPrefix string
@@ -26,7 +26,7 @@ type redisBuffer struct {
 }
 
 // RedisBuffer -
-func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consumers ...consumer.Interface) (Buffer, error) {
+func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consumers map[string]consumer.Interface) (Buffer, error) {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConfig.Endpoint,
 		Password: redisConfig.Password,

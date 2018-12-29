@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/khezen/bulklog/collection"
@@ -10,7 +11,7 @@ import (
 )
 
 // convey documents to consumers through pipes!
-func convey(documents []collection.Document, consumers []consumer.Interface, retryPeriod, retentionPeriod time.Duration) {
+func convey(documents []collection.Document, consumers map[string]consumer.Interface, retryPeriod, retentionPeriod time.Duration) {
 	var (
 		startedAt           = time.Now().UTC()
 		dieAt               = startedAt.Add(retentionPeriod)
@@ -18,26 +19,34 @@ func convey(documents []collection.Document, consumers []consumer.Interface, ret
 		currentTimeUnixNano int64
 		nextTryAtUnixNano   int64
 		i                   int
-		failed              []consumer.Interface
+		failed              map[string]consumer.Interface
 		err                 error
 		timer               *time.Timer
 		latestTryAt         time.Time
 		waitFor             time.Duration
 		cons                consumer.Interface
+		consumerName        string
+		wg                  sync.WaitGroup
 	)
 	for {
 		fmt.Println("try convey - ", "consumers:", len(consumers), "documents:", len(documents))
 		latestTryAt = time.Now().UTC()
-		for _, cons = range consumers {
-			err = cons.Digest(documents)
-			if err != nil {
-				if failed == nil {
-					failed = make([]consumer.Interface, 0, len(consumers))
+		wg = sync.WaitGroup{}
+		for consumerName, cons = range consumers {
+			wg.Add(1)
+			go func(consumerName string, cons consumer.Interface) {
+				err = cons.Digest(documents)
+				if err != nil {
+					if failed == nil {
+						failed = make(map[string]consumer.Interface)
+					}
+					failed[consumerName] = cons
+					fmt.Println(err)
 				}
-				failed = append(failed, cons)
-				fmt.Println(err)
-			}
+				wg.Done()
+			}(consumerName, cons)
 		}
+		wg.Wait()
 		if len(failed) == 0 || time.Since(startedAt) > retentionPeriod {
 			return
 		}

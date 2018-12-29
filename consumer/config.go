@@ -10,11 +10,11 @@ type Config struct {
 }
 
 // NewConsumers -
-func NewConsumers(cfg *Config) ([]Interface, error) {
-	consumers := make([]Interface, 0, 5)
+func NewConsumers(cfg *Config) (map[string]Interface, error) {
+	consumers := make(map[string]Interface)
 	if cfg.Elastic != nil {
 		elasticsearch := elastic.New(*cfg.Elastic)
-		consumers = append(consumers, elasticsearch)
+		consumers["elasticsearch"] = elasticsearch
 	}
 	return consumers, nil
 }

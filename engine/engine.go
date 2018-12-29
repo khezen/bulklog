@@ -37,12 +37,12 @@ func New(cfg *config.Config) (Engine, error) {
 		}
 		var buffer Buffer
 		if cfg.Persistence.Enabled {
-			buffer, err = RedisBuffer(collec, cfg.Persistence.Redis, consumers...)
+			buffer, err = RedisBuffer(collec, cfg.Persistence.Redis, consumers)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			buffer = DefaultBuffer(collec, consumers...)
+			buffer = DefaultBuffer(collec, consumers)
 		}
 		buffers[collec.Name] = buffer
 		if collec.FlushPeriod > 0 {

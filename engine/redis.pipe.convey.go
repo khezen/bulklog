@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/khezen/bulklog/consumer"
@@ -33,7 +34,7 @@ func presetRedisConvey(
 		return
 	}
 	var (
-		consumers           []consumer.Interface
+		consumers           map[string]consumer.Interface
 		dieAt               = startedAt.Add(retentionPeriod)
 		dieAtUnixNano       = dieAt.UnixNano()
 		currentTimeUnixNano int64
@@ -43,6 +44,7 @@ func presetRedisConvey(
 		waitFor             time.Duration
 		timer               *time.Timer
 		tx                  redis.Pipeliner
+		wg                  sync.WaitGroup
 		quit                bool
 	)
 	for {
@@ -61,24 +63,26 @@ func presetRedisConvey(
 				fmt.Println(err)
 				return
 			}
-			for i := 0; i < len(consumers); i++ {
-				err = consumers[i].Digest(documents)
-				if err != nil {
-					fmt.Println(err)
-					err = nil
-				} else {
-					consumers[i] = consumers[len(consumers)-1]
-					consumers[len(consumers)-1] = nil
-					consumers = consumers[:len(consumers)]
-					i--
-					err = setRedisConsumers(tx, pipeKey, consumers)
+			wg = sync.WaitGroup{}
+			for consumerName, cons := range consumers {
+				wg.Add(1)
+				go func(consumerName string, cons consumer.Interface) {
+					err = cons.Digest(documents)
 					if err != nil {
 						fmt.Println(err)
 						err = nil
-						return
+					} else {
+						delete(consumers, consumerName)
+						err = setRedisConsumers(tx, pipeKey, consumers)
+						if err != nil {
+							fmt.Println(err)
+							err = nil
+						}
 					}
-				}
+					wg.Done()
+				}(consumerName, cons)
 			}
+			wg.Wait()
 		}()
 		func() {
 			tx = red.TxPipeline()

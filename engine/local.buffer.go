@@ -16,13 +16,13 @@ const bufferLimit = 10000
 type buffer struct {
 	sync.Mutex
 	collection *collection.Collection
-	consumers  []consumer.Interface
+	consumers  map[string]consumer.Interface
 	close      chan struct{}
 	documents  []collection.Document
 }
 
 // DefaultBuffer creates a new buffer
-func DefaultBuffer(collec *collection.Collection, consumers ...consumer.Interface) Buffer {
+func DefaultBuffer(collec *collection.Collection, consumers map[string]consumer.Interface) Buffer {
 	buffer := &buffer{
 		Mutex:      sync.Mutex{},
 		collection: collec,
