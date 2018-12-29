@@ -92,7 +92,7 @@ func (b *redisBuffer) Flush() (err error) {
 	var length int64
 	length, err = tx.LLen(b.bufferKey).Result()
 	if err != nil {
-		return fmt.Errorf("LLEN(bufferKey).%s", err.Error())
+		return fmt.Errorf("(LLEN bufferKey).%s", err.Error())
 	}
 	if length == 0 {
 		return
