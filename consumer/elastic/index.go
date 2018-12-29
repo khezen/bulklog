@@ -99,7 +99,7 @@ func Digest(d collection.Document) ([]byte, error) {
 	request["index"] = docDescription
 	body, err := json.Marshal(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json.Marshal.%s", err)
 	}
 	body = append(body, '\n')
 	body = append(body, d.Body...)

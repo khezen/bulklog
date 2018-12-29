@@ -59,22 +59,22 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 	for _, doc := range documents {
 		docBytes, err := Digest(doc)
 		if err != nil {
-			return err
+			return fmt.Errorf("Digest.%s", err)
 		}
 		buf.Write(docBytes)
 	}
 	req, err := http.NewRequest("POST", c.bulkEndpoint, buf)
 	if err != nil {
-		return err
+		return fmt.Errorf("http.NewRequest.%s", err)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	err = c.sign(req, buf.Bytes())
 	if err != nil {
-		return err
+		return fmt.Errorf("Sign.%s", err)
 	}
 	res, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("httpClient.Do.%s", err)
 	}
 	if res.StatusCode > 300 {
 		resBody, err := ioutil.ReadAll(res.Body)
@@ -92,21 +92,21 @@ func (c *Elastic) Ensure(collection *collection.Collection) error {
 	elasticIndex := RenderElasticIndex(collection, c.indeSettings)
 	elasticIndexBytes, err := json.Marshal(elasticIndex)
 	if err != nil {
-		return err
+		return fmt.Errorf("json.Marshal.%s", err)
 	}
 	buf := bytes.NewBuffer(elasticIndexBytes)
 	req, err := http.NewRequest("POST", endpoint, buf)
 	if err != nil {
-		return err
+		return fmt.Errorf("http.NewRequest.%s", err)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	err = c.sign(req, elasticIndexBytes)
 	if err != nil {
-		return err
+		return fmt.Errorf("Sign.%s", err)
 	}
 	res, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("httpClient.Do.%s", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
