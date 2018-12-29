@@ -20,7 +20,7 @@ func Get() (config *Config, err error) {
 	}
 	singleton, err = loadConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("loadConfig.%s", err)
 	}
 	return singleton, nil
 }
@@ -32,12 +32,12 @@ func loadConfig() (*Config, error) {
 	// Load config file
 	bytes, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ioutil.ReadFile.%s", err)
 	}
 	var config Config
 	err = yaml.Unmarshal(bytes, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("yaml.Unmarshal.%s", err)
 	}
 	return &config, nil
 }
