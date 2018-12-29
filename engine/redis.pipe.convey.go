@@ -32,7 +32,7 @@ func presetRedisConvey(
 	retryPeriod, retentionPeriod time.Duration) {
 	documents, err := getRedisPipeDocuments(red, pipeKey)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("getRedisPipeDocuments.%s)\n", err)
 		return
 	}
 	var (
@@ -55,14 +55,20 @@ func presetRedisConvey(
 			tx = red.TxPipeline()
 			defer func() {
 				if err != nil {
-					tx.Discard()
+					err = tx.Discard()
+					if err != nil {
+						fmt.Printf("DISCARD.%s)\n", err)
+					}
 				} else {
-					tx.Exec()
+					_, err = tx.Exec()
+					if err != nil {
+						fmt.Printf("EXEC.%s)\n", err)
+					}
 				}
 			}()
 			remainingConsumers, err = getRedisPipeConsumers(tx, pipeKey, consumers)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("getRedisPipeDocuments.%s)\n", err)
 				return
 			}
 			wg = sync.WaitGroup{}
@@ -71,12 +77,12 @@ func presetRedisConvey(
 				go func(consumerName string, cons consumer.Interface) {
 					err = cons.Digest(documents)
 					if err != nil {
-						fmt.Println(err)
+						fmt.Printf("Digest.%s)\n", err)
 						err = nil
 					} else {
 						err = deleteRedisPipeConsumer(tx, pipeKey, consumerName)
 						if err != nil {
-							fmt.Println(err)
+							fmt.Printf("deleteRedisPipeConsumer.%s)\n", err)
 							err = nil
 						}
 					}
@@ -89,16 +95,22 @@ func presetRedisConvey(
 			tx = red.TxPipeline()
 			defer func() {
 				if err != nil {
-					tx.Discard()
+					err = tx.Discard()
+					if err != nil {
+						fmt.Printf("DISCARD.%s)\n", err)
+					}
 				} else {
-					tx.Exec()
+					_, err = tx.Exec()
+					if err != nil {
+						fmt.Printf("EXEC.%s)\n", err)
+					}
 				}
 			}()
 			currentTimeUnixNano = time.Now().UTC().UnixNano()
 			if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
 				err = deleteRedisPipe(tx, pipeKey)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Printf("deleteRedisPipe.%s)\n", err)
 				} else {
 					quit = true
 					return
@@ -106,7 +118,7 @@ func presetRedisConvey(
 			}
 			iteration, err = getRedisPipeIteration(tx, pipeKey)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("getRedisPipeIteration.%s)\n", err)
 				waitFor = retryPeriod - time.Since(latestTryAt)
 				return
 			}
@@ -115,7 +127,7 @@ func presetRedisConvey(
 			if nextTryAtUnixNano > dieAtUnixNano {
 				err = deleteRedisPipe(tx, pipeKey)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Printf("deleteRedisPipe.%s)\n", err)
 				} else {
 					quit = true
 					return
@@ -123,7 +135,7 @@ func presetRedisConvey(
 			}
 			err = incrRedisPipeIteration(tx, pipeKey)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("incrRedisPipeIteration.%s)\n", err)
 				return
 			}
 		}()
@@ -149,7 +161,7 @@ func redisConveyAll(red *redis.Client, pipeKeyPrefix string, consumers map[strin
 	for i := 0; i < maxTries; i++ {
 		keys, err := red.Keys(pattern).Result()
 		if err != nil {
-			fmt.Printf("redis connection failed. Try: %d\n", i)
+			fmt.Printf("KEYS.%s; Try: %d\n", err.Error(), i)
 			timer = time.NewTimer(retryPeriod)
 			<-timer.C
 			continue
@@ -161,6 +173,6 @@ func redisConveyAll(red *redis.Client, pipeKeyPrefix string, consumers map[strin
 		break
 	}
 	if !success {
-		panic(fmt.Errorf("redis connection kept failing after %d retries", maxTries))
+		panic(fmt.Errorf("redis KEYS kept failing after %d retries", maxTries))
 	}
 }
