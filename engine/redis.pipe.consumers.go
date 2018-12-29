@@ -9,7 +9,7 @@ import (
 	"github.com/khezen/bulklog/consumer"
 )
 
-func getConsumers(tx redis.Pipeliner, pipeKey string) (consumers []consumer.Interface, err error) {
+func getRedisConsumers(tx redis.Pipeliner, pipeKey string) (consumers []consumer.Interface, err error) {
 	consumerStrings, err := tx.HGet(pipeKey, "consumers").Result()
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func getConsumers(tx redis.Pipeliner, pipeKey string) (consumers []consumer.Inte
 	return consumers, nil
 }
 
-func setConsumers(tx redis.Pipeliner, pipeKey string, consumers []consumer.Interface) (err error) {
+func setRedisConsumers(tx redis.Pipeliner, pipeKey string, consumers []consumer.Interface) (err error) {
 	var buf bytes.Buffer
 	err = gob.NewEncoder(&buf).Encode(consumers)
 	if err != nil {

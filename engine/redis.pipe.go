@@ -1,14 +1,13 @@
 package engine
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
 )
 
-func getPipe(red *redis.Client, pipeKey string) (
+func getRedisPipe(red *redis.Client, pipeKey string) (
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration,
 	err error) {
@@ -35,22 +34,28 @@ func getPipe(red *redis.Client, pipeKey string) (
 	return startedAt, retryPeriod, retentionPeriod, nil
 }
 
-func deletePipe(red *redis.Client, pipeKey string) (err error) {
-	tx := red.TxPipeline()
-	defer func() {
-		if err != nil {
-			tx.Discard()
-		} else {
-			tx.Exec()
-		}
-	}()
+func newRedisPipe(tx redis.Pipeliner, pipeKey string, flushPeriod, retentionPeriod time.Duration, startedAt time.Time) (err error) {
+	_, err = tx.HSet(pipeKey, "retryPeriodNano", flushPeriod).Result()
+	if err != nil {
+		return err
+	}
+	_, err = tx.HSet(pipeKey, "retentionPeriodNano", retentionPeriod).Result()
+	if err != nil {
+		return err
+	}
+	_, err = tx.HSet(pipeKey, "startedAt", startedAt.Format(time.RFC3339Nano)).Result()
+	if err != nil {
+		return err
+	}
+	err = setRedisIteration(tx, pipeKey, 0)
+	return err
+}
+
+func deleteRedisPipe(tx redis.Pipeliner, pipeKey string) (err error) {
 	_, err = tx.Del(pipeKey).Result()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Del(fmt.Sprintf("%s.buffer", pipeKey)).Result()
-	if err != nil {
-		return err
-	}
-	return nil
+	err = deleteRedisDocuments(tx, pipeKey)
+	return err
 }

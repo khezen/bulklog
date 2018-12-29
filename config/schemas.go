@@ -2,20 +2,15 @@ package config
 
 import (
 	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/consumer/elastic"
+	"github.com/khezen/bulklog/consumer"
 )
 
 // Config contains all configuration for the logger
 type Config struct {
 	Port        int                 `yaml:"port"`
 	Persistence Persistence         `yaml:"persistence"`
-	Output      Consumers           `yaml:"output"`
+	Output      consumer.Config     `yaml:"output"`
 	Collections []collection.Config `yaml:"collections,flow"`
-}
-
-// Consumers -
-type Consumers struct {
-	Elastic *elastic.Config `yaml:"elasticsearch,omitempty"`
 }
 
 // Persistence -

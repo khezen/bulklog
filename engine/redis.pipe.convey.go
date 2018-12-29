@@ -11,7 +11,7 @@ import (
 )
 
 func redisConvey(red *redis.Client, pipeKey string) {
-	startedAt, retryPeriod, retentionPeriod, err := getPipe(red, pipeKey)
+	startedAt, retryPeriod, retentionPeriod, err := getRedisPipe(red, pipeKey)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -27,7 +27,7 @@ func presetRedisConvey(
 	red *redis.Client, pipeKey string,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
-	documents, err := getDocuments(red, pipeKey)
+	documents, err := getRedisDocuments(red, pipeKey)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -38,15 +38,17 @@ func presetRedisConvey(
 		dieAtUnixNano       = dieAt.UnixNano()
 		currentTimeUnixNano int64
 		nextTryAtUnixNano   int64
-		iter                int
+		iteration           int
 		latestTryAt         time.Time
 		waitFor             time.Duration
 		timer               *time.Timer
+		tx                  redis.Pipeliner
+		quit                bool
 	)
 	for {
 		latestTryAt = time.Now().UTC()
 		func() {
-			tx := red.TxPipeline()
+			tx = red.TxPipeline()
 			defer func() {
 				if err != nil {
 					tx.Discard()
@@ -54,7 +56,7 @@ func presetRedisConvey(
 					tx.Exec()
 				}
 			}()
-			consumers, err = getConsumers(tx, pipeKey)
+			consumers, err = getRedisConsumers(tx, pipeKey)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -69,7 +71,7 @@ func presetRedisConvey(
 					consumers[len(consumers)-1] = nil
 					consumers = consumers[:len(consumers)]
 					i--
-					err = setConsumers(tx, pipeKey, consumers)
+					err = setRedisConsumers(tx, pipeKey, consumers)
 					if err != nil {
 						fmt.Println(err)
 						err = nil
@@ -78,34 +80,50 @@ func presetRedisConvey(
 				}
 			}
 		}()
-		currentTimeUnixNano = time.Now().UTC().UnixNano()
-		if len(consumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
-			err = deletePipe(red, pipeKey)
+		func() {
+			tx = red.TxPipeline()
+			defer func() {
+				if err != nil {
+					tx.Discard()
+				} else {
+					tx.Exec()
+				}
+			}()
+			currentTimeUnixNano = time.Now().UTC().UnixNano()
+			if len(consumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
+				err = deleteRedisPipe(tx, pipeKey)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					quit = true
+					return
+				}
+			}
+			iteration, err = getRedisIteration(tx, pipeKey)
 			if err != nil {
 				fmt.Println(err)
-				err = nil
+				waitFor = retryPeriod - time.Since(latestTryAt)
+				return
 			}
-			return
-		}
-		iter, err = getIter(red, pipeKey)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iter))) - time.Since(latestTryAt)
-		nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)
-		if nextTryAtUnixNano > dieAtUnixNano {
-			err = deletePipe(red, pipeKey)
+			waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iteration))) - time.Since(latestTryAt)
+			nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)
+			if nextTryAtUnixNano > dieAtUnixNano {
+				err = deleteRedisPipe(tx, pipeKey)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					quit = true
+					return
+				}
+			}
+			iteration++
+			err = setRedisIteration(tx, pipeKey, iteration)
 			if err != nil {
 				fmt.Println(err)
-				err = nil
+				return
 			}
-			return
-		}
-		iter++
-		err = setIter(red, pipeKey, iter)
-		if err != nil {
-			fmt.Println(err)
+		}()
+		if quit {
 			return
 		}
 		if waitFor <= 0 {

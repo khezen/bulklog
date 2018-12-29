@@ -70,6 +70,7 @@ Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
 ### Persistence
 
+**this feature is not production ready**
 Peristence is disabled by default in which case data is buffered in memory.
 If enabled, it uses Redis to persist documents buffer. 
 [Learn how to tune Redis persistence](https://redis.io/topics/persistence) for your requirements. 

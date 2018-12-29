@@ -88,33 +88,15 @@ func (b *redisBuffer) Flush() (err error) {
 	}
 	pipeID := uuid.New()
 	pipeKey := fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
-	_, err = tx.Rename(b.bufferKey, fmt.Sprintf("%s.buffer", pipeKey)).Result()
+	err = newRedisPipe(tx, pipeKey, b.collection.FlushPeriod, b.collection.RetentionPeriod, now)
 	if err != nil {
 		return err
 	}
-	_, err = tx.HSet(pipeKey, "retryPeriodNano", b.collection.FlushPeriod).Result()
+	err = setRedisDocuments(tx, b.bufferKey, pipeKey)
 	if err != nil {
 		return err
 	}
-	_, err = tx.HSet(pipeKey, "retentionPeriodNano", b.collection.RetentionPeriod).Result()
-	if err != nil {
-		return err
-	}
-	_, err = tx.HSet(pipeKey, "startedAt", now.Format(time.RFC3339Nano)).Result()
-	if err != nil {
-		return err
-	}
-	_, err = tx.HSet(pipeKey, "iter", 0).Result()
-	if err != nil {
-		return err
-	}
-	var buf bytes.Buffer
-	err = gob.NewEncoder(&buf).Encode(b.consumers)
-	if err != nil {
-		return err
-	}
-	consumersBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	_, err = tx.HSet(pipeKey, "consumers", consumersBase64).Result()
+	err = setRedisConsumers(tx, pipeKey, b.consumers)
 	if err != nil {
 		return err
 	}
@@ -141,6 +123,8 @@ func (b *redisBuffer) Flusher() func() {
 				err := b.Flush()
 				if err != nil {
 					fmt.Println(err)
+					timer = time.NewTimer(time.Second)
+					<-timer.C
 				}
 				continue
 			}

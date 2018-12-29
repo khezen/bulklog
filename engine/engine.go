@@ -4,7 +4,6 @@ import (
 	"github.com/khezen/bulklog/collection"
 	"github.com/khezen/bulklog/config"
 	"github.com/khezen/bulklog/consumer"
-	"github.com/khezen/bulklog/consumer/elastic"
 )
 
 // Indexer indexes document in bulk request to elasticsearch
@@ -15,10 +14,9 @@ type engine struct {
 
 // New - Create new service for serving web REST requests
 func New(cfg *config.Config) (Engine, error) {
-	consumers := make([]consumer.Interface, 0, 5)
-	if cfg.Output.Elastic != nil {
-		elasticsearch := elastic.New(*cfg.Output.Elastic)
-		consumers = append(consumers, elasticsearch)
+	consumers, err := consumer.NewConsumers(&cfg.Output)
+	if err != nil {
+		return nil, err
 	}
 	schemas := make(map[collection.Name]map[collection.SchemaName]struct{})
 	buffers := make(map[collection.Name]Buffer)

@@ -10,7 +10,6 @@ import (
 
 	"github.com/khezen/bulklog/auth"
 	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/consumer"
 )
 
 var (
@@ -26,7 +25,7 @@ type Elastic struct {
 }
 
 // New returns a elasticsearch as a consumer
-func New(cfg Config) consumer.Interface {
+func New(cfg Config) *Elastic {
 	if cfg.Scheme == "" {
 		cfg.Scheme = "http"
 	}
