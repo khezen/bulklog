@@ -86,10 +86,11 @@ func (b *redisBuffer) Flush() (err error) {
 			return
 		}
 		intCmder = tx.LLen(b.bufferKey)
-		length, err = intCmder.Result()
+		err = intCmder.Err()
 		if err != nil {
 			return fmt.Errorf("(LLEN bufferKey).%s", err.Error())
 		}
+		length = intCmder.Val()
 		if length == 0 {
 			statusCmder = tx.Set(b.timeKey, now.Format(time.RFC3339Nano), 0)
 			err = statusCmder.Err()

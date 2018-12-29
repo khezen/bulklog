@@ -43,7 +43,7 @@ docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.6`, `1.0`, `1`, `stable`
+* `1.0.7`, `1.0`, `1`, `stable`
 
 #### ENV
 
@@ -69,9 +69,6 @@ helm install khezen/bulklog --name bulklog
 Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
 ### Persistence
-
-**this feature is not production ready.**
-
 
 Peristence is disabled by default in which case data is buffered in memory.
 If enabled, it uses Redis to persist documents buffer. 
