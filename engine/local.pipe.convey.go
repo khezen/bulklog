@@ -41,7 +41,7 @@ func convey(documents []collection.Document, consumers map[string]consumer.Inter
 						failed = make(map[string]consumer.Interface)
 					}
 					failed[consumerName] = cons
-					fmt.Println(err)
+					fmt.Printf("Digest.%s)\n", err)
 				}
 				wg.Done()
 			}(consumerName, cons)

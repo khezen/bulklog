@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"fmt"
+
 	"github.com/khezen/bulklog/collection"
 	"github.com/khezen/bulklog/config"
 	"github.com/khezen/bulklog/consumer"
@@ -16,19 +18,19 @@ type engine struct {
 func New(cfg *config.Config) (Engine, error) {
 	consumers, err := consumer.NewConsumers(&cfg.Output)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("consumer.NewConsumers.%s", err)
 	}
 	schemas := make(map[collection.Name]map[collection.SchemaName]struct{})
 	buffers := make(map[collection.Name]Buffer)
 	for _, collecCfg := range cfg.Collections {
 		collec, err := collection.New(collecCfg)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("collection.New.%s", err)
 		}
 		for _, cons := range consumers {
 			err = cons.Ensure(collec)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("Ensure.%s", err)
 			}
 		}
 		schemas[collec.Name] = make(map[collection.SchemaName]struct{})
@@ -53,7 +55,7 @@ func New(cfg *config.Config) (Engine, error) {
 }
 
 // Collect document
-func (e *engine) Collect(collectionName collection.Name, schemaName collection.SchemaName, docBytes []byte) error {
+func (e *engine) Collect(collectionName collection.Name, schemaName collection.SchemaName, docBytes []byte) (err error) {
 	_, ok := e.schemas[collectionName]
 	if !ok {
 		return ErrNotFound
@@ -63,12 +65,20 @@ func (e *engine) Collect(collectionName collection.Name, schemaName collection.S
 	}
 	document, err := collection.NewDocument(collectionName, schemaName, docBytes)
 	if err != nil {
-		return err
+		return fmt.Errorf("collection.NewDocument.%s", err)
 	}
-	return e.Dispatch(document)
+	err = e.Dispatch(document)
+	if err != nil {
+		return fmt.Errorf("Dispatch.%s", err)
+	}
+	return nil
 }
 
 // Dispatch takes incoming message into Elasticsearch
-func (e *engine) Dispatch(document *collection.Document) error {
-	return e.buffers[document.CollectionName].Append(document)
+func (e *engine) Dispatch(document *collection.Document) (err error) {
+	err = e.buffers[document.CollectionName].Append(document)
+	if err != nil {
+		return fmt.Errorf("Append.%s", err)
+	}
+	return nil
 }

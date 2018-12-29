@@ -68,7 +68,7 @@ func (b *buffer) Flusher() func() {
 			case <-ticker.C:
 				err = b.Flush()
 				if err != nil {
-					fmt.Println(err)
+					fmt.Printf("Flush.%s)\n", err)
 				}
 				break
 			}
