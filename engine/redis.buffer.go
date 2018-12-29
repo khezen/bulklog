@@ -96,7 +96,7 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return err
 	}
-	err = setRedisConsumers(tx, pipeKey, b.consumers)
+	err = addRedisConsumers(tx, pipeKey, b.consumers)
 	if err != nil {
 		return err
 	}

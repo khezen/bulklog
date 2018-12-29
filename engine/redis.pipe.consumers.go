@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/gob"
+	"fmt"
 
 	"github.com/go-redis/redis"
 	"github.com/khezen/bulklog/consumer"
@@ -26,16 +27,23 @@ func getRedisConsumers(tx redis.Pipeliner, pipeKey string) (consumers map[string
 	return consumers, nil
 }
 
-func setRedisConsumers(tx redis.Pipeliner, pipeKey string, consumers map[string]consumer.Interface) (err error) {
-	var buf bytes.Buffer
-	err = gob.NewEncoder(&buf).Encode(consumers)
+func addRedisConsumers(tx redis.Pipeliner, pipeKey string, consumers map[string]consumer.Interface) (err error) {
+	key := fmt.Sprintf("%s.consumers", pipeKey)
+	var consumerName string
+	_, err = tx.Del(key).Result()
 	if err != nil {
 		return err
 	}
-	consumersBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	_, err = tx.HSet(pipeKey, "consumers", consumersBase64).Result()
-	if err != nil {
-		return err
+	for consumerName = range consumers {
+		_, err = tx.RPushX(key, consumerName).Result()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func delRedisConsumer(tx redis.Pipeliner, pipeKey, consumerName string) (err error) {
+	_, err = tx.LRem(fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName).Result()
+	return err
 }

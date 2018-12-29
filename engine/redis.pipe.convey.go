@@ -72,12 +72,12 @@ func presetRedisConvey(
 						fmt.Println(err)
 						err = nil
 					} else {
-						delete(consumers, consumerName)
-						err = setRedisConsumers(tx, pipeKey, consumers)
+						err = delRedisConsumer(tx, pipeKey, consumerName)
 						if err != nil {
 							fmt.Println(err)
 							err = nil
 						}
+						delete(consumers, consumerName)
 					}
 					wg.Done()
 				}(consumerName, cons)
@@ -120,8 +120,7 @@ func presetRedisConvey(
 					return
 				}
 			}
-			iteration++
-			err = setRedisIteration(tx, pipeKey, iteration)
+			err = incrRedisIteration(tx, pipeKey)
 			if err != nil {
 				fmt.Println(err)
 				return

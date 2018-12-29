@@ -18,3 +18,8 @@ func setRedisIteration(tx redis.Pipeliner, pipeKey string, iter int) (err error)
 	_, err = tx.HSet(pipeKey, "iteration", iter).Result()
 	return err
 }
+
+func incrRedisIteration(tx redis.Pipeliner, pipeKey string) (err error) {
+	_, err = tx.HIncrBy(pipeKey, "iteration", 1).Result()
+	return err
+}
