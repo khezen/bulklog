@@ -1,6 +1,7 @@
 package collection
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -8,15 +9,15 @@ import (
 func New(cfg Config) (*Collection, error) {
 	flushPeriod, err := cfg.FlushPeriod()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("FlushPeriod.%s", err)
 	}
 	retentionPeriod, err := cfg.RetentionPeriod()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("RetnetionPeriod.%s", err)
 	}
 	schemas, err := cfg.Schemas()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Schemas.%s", err)
 	}
 	return &Collection{
 		Name:            cfg.Name,

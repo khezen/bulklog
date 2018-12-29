@@ -2,6 +2,7 @@ package collection
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,15 +22,17 @@ func NewDocument(collectionName Name, schemaName SchemaName, body []byte) (*Docu
 	var bodyMap map[string]interface{}
 	err := json.Unmarshal(body, &bodyMap)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json.Unmarshal.%s", err)
 	}
+	postedAt := time.Now().UTC()
+	// bodyMap["postedAt"] = postedAt
 	body, err = json.Marshal(bodyMap)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json.Marshal.%s", err)
 	}
 	return &Document{
 		ID:             uuid.New(),
-		PostedAt:       time.Now().UTC(),
+		PostedAt:       postedAt,
 		CollectionName: collectionName,
 		SchemaName:     schemaName,
 		Body:           body,

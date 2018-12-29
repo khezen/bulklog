@@ -1,6 +1,7 @@
 package collection
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -40,7 +41,7 @@ func period(periodStr string) (period time.Duration, err error) {
 	}
 	quantity, err := strconv.ParseFloat(periodStrSplit[0], 64)
 	if err != nil {
-		return period, err
+		return period, fmt.Errorf("strconv.ParseFloat.%s", err)
 	}
 	unit := strings.ToLower(strings.TrimSpace(periodStrSplit[1]))
 	switch unit {
