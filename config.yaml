@@ -1,5 +1,5 @@
 ---
-port: 5000
+port: 5017
 
 persistence:
   enabled: false

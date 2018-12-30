@@ -37,7 +37,7 @@ A collection is a set of schemas.
 [![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://hub.docker.com/r/khezen/bulklog/)
 
 ```bash
-docker run -p 5000:5000 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
+docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 ```
 
 #### Supported tags

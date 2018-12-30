@@ -8,7 +8,7 @@ import (
 	"github.com/khezen/bulklog/engine"
 )
 
-const defaultPort = 5000
+const defaultPort = 5017
 
 // Server - Contains data required for serving web REST requests
 type Server struct {
