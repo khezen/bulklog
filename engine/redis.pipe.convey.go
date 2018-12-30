@@ -141,7 +141,7 @@ func redisConveyAll(red *redis.Client, pipeKeyPrefix string, consumers map[strin
 		sliceCmder = red.Keys(pattern)
 		err = sliceCmder.Err()
 		if err != nil {
-			fmt.Printf("KEYS.%s; Try: %d\n", err.Error(), i)
+			fmt.Printf("KEYS.%s; Try: %d\n", err, i)
 			timer = time.NewTimer(retryPeriod)
 			<-timer.C
 			continue

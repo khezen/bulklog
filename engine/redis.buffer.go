@@ -88,7 +88,7 @@ func (b *redisBuffer) Flush() (err error) {
 		intCmder = tx.LLen(b.bufferKey)
 		err = intCmder.Err()
 		if err != nil {
-			return fmt.Errorf("(LLEN bufferKey).%s", err.Error())
+			return fmt.Errorf("(LLEN bufferKey).%s", err)
 		}
 		length = intCmder.Val()
 		if length == 0 {

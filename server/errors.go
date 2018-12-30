@@ -29,10 +29,10 @@ func HTTPStatusCode(err error) int {
 }
 
 func (s *Server) serveError(w http.ResponseWriter, r *http.Request, err error) {
-	fmt.Printf("%v", err.Error())
+	fmt.Printf("%v", err)
 	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	statusCode := HTTPStatusCode(err)
 	w.WriteHeader(statusCode)
-	io.WriteString(w, err.Error())
+	io.WriteString(w, err)
 }

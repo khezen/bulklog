@@ -15,7 +15,7 @@ func flushBuffer2RedisPipe(tx *redis.Tx, bufferKey, pipeKey string) (err error) 
 	statusCmder = tx.Rename(bufferKey, fmt.Sprintf("%s.buffer", pipeKey))
 	err = statusCmder.Err()
 	if err != nil {
-		return fmt.Errorf("RENAME(bufferKey pipeKey.buffer).%s", err.Error())
+		return fmt.Errorf("RENAME(bufferKey pipeKey.buffer).%s", err)
 	}
 	return nil
 }
@@ -29,13 +29,13 @@ func getRedisPipeDocuments(red *redis.Client, pipeKey string) (documents []colle
 	intCmder = red.LLen(bufferKey)
 	err = intCmder.Err()
 	if err != nil {
-		return nil, fmt.Errorf("(LLEN pipeKey.buffer).%s", err.Error())
+		return nil, fmt.Errorf("(LLEN pipeKey.buffer).%s", err)
 	}
 	documentsLen := intCmder.Val()
 	sliceCmder = red.LRange(bufferKey, 0, documentsLen)
 	err = sliceCmder.Err()
 	if err != nil {
-		return nil, fmt.Errorf("(LRANGE pipeKey.buffer 0 documentsLen).%s", err.Error())
+		return nil, fmt.Errorf("(LRANGE pipeKey.buffer 0 documentsLen).%s", err)
 	}
 	docStrings := sliceCmder.Val()
 	documents = make([]collection.Document, 0, documentsLen)
@@ -43,13 +43,13 @@ func getRedisPipeDocuments(red *redis.Client, pipeKey string) (documents []colle
 	for _, docBase64 := range docStrings {
 		docBytes, err := base64.StdEncoding.DecodeString(docBase64)
 		if err != nil {
-			return nil, fmt.Errorf("base64.std.decode.%s", err.Error())
+			return nil, fmt.Errorf("base64.std.decode.%s", err)
 		}
 		buf = bytes.NewBuffer(docBytes)
 		var doc collection.Document
 		err = gob.NewDecoder(buf).Decode(&doc)
 		if err != nil {
-			return nil, fmt.Errorf("(gob.decode.%s", err.Error())
+			return nil, fmt.Errorf("(gob.decode.%s", err)
 		}
 		documents = append(documents, doc)
 	}
@@ -61,7 +61,7 @@ func deleteRedisPipeDocuments(tx *redis.Tx, pipeKey string) (err error) {
 	intCmder = tx.Del(fmt.Sprintf("%s.buffer", pipeKey))
 	err = intCmder.Err()
 	if err != nil {
-		return fmt.Errorf("(DEL pipeKey.buffer).%s", err.Error())
+		return fmt.Errorf("(DEL pipeKey.buffer).%s", err)
 	}
 	return nil
 }
