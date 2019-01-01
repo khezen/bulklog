@@ -30,7 +30,7 @@ A collection is a set of schemas.
 
 ---
 
-## Quick Start
+## Install
 
 ### Docker
 
