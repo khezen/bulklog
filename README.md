@@ -7,7 +7,7 @@ Collects, buffers, and outputs logs across multiple sources and destinations.
 
 *bulklog* is written in go and requires little resource.
 
-*bulklog* supports memory and [redis](https://redis.io/topics/persistence) buffering to prevent data loss.
+*bulklog* supports memory and [redis](https://redis.io/) buffering.
 *bulklog* also supports failover and can be set up for high availability.
 
 ---

@@ -6,13 +6,19 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/consumer"
-
-	"github.com/go-redis/redis"
 )
 
-func redisConvey(red *redis.Client, pipeKey string, consumers map[string]consumer.Interface) {
+func redisConvey(red redis.Conn, pipeKey string, consumers map[string]consumer.Interface) {
 	startedAt, retryPeriod, retentionPeriod, err := getRedisPipe(red, pipeKey)
+	if err == errRedisPipeNotFound {
+		err = deleteRedisPipe(red, pipeKey)
+		if err != nil {
+			fmt.Printf("deleteRedisPipe.%s)\n", err)
+		}
+		return
+	}
 	if err != nil {
 		fmt.Printf("getRedisPipe.%s)\n", err)
 		return
@@ -26,7 +32,7 @@ func redisConvey(red *redis.Client, pipeKey string, consumers map[string]consume
 }
 
 func presetRedisConvey(
-	red *redis.Client, pipeKey string,
+	red redis.Conn, pipeKey string,
 	consumers map[string]consumer.Interface,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
@@ -35,9 +41,14 @@ func presetRedisConvey(
 		fmt.Printf("getRedisPipeDocuments.%s)\n", err)
 		return
 	}
+	if len(documents) == 0 {
+		err = deleteRedisPipe(red, pipeKey)
+		if err != nil {
+			fmt.Printf("deleteRedisPipe.%s)\n", err)
+		}
+		return
+	}
 	var (
-		pipeConsumersKey    = fmt.Sprintf("%s.consumers", pipeKey)
-		pipeBufferKey       = fmt.Sprintf("%s.buffer", pipeKey)
 		remainingConsumers  map[string]consumer.Interface
 		dieAt               = startedAt.Add(retentionPeriod)
 		dieAtUnixNano       = dieAt.UnixNano()
@@ -48,74 +59,75 @@ func presetRedisConvey(
 		waitFor             time.Duration
 		timer               *time.Timer
 		wg                  sync.WaitGroup
-		quit                bool
 	)
 	for {
 		latestTryAt = time.Now().UTC()
-		red.Watch(func(tx *redis.Tx) (err error) {
-			remainingConsumers, err = getRedisPipeConsumers(tx, pipeKey, consumers)
-			if err != nil {
-				fmt.Printf("getRedisPipeDocuments.%s)\n", err)
-				return
-			}
-			wg = sync.WaitGroup{}
-			for consumerName, cons := range remainingConsumers {
-				wg.Add(1)
-				go func(consumerName string, cons consumer.Interface) {
-					err = cons.Digest(documents)
+		remainingConsumers, err = getRedisPipeConsumers(red, pipeKey, consumers)
+		if err != nil {
+			fmt.Printf("getRedisPipeDocuments.%s)\n", err)
+			return
+		}
+		if len(remainingConsumers) == 0 {
+			break
+		}
+		wg = sync.WaitGroup{}
+		for consumerName, cons := range remainingConsumers {
+			wg.Add(1)
+			go func(consumerName string, cons consumer.Interface) {
+				err = cons.Digest(documents)
+				if err != nil {
+					fmt.Printf("Digest.%s)\n", err)
+					err = nil
+				} else {
+					err = deleteRedisPipeConsumer(red, pipeKey, consumerName)
 					if err != nil {
-						fmt.Printf("Digest.%s)\n", err)
+						fmt.Printf("deleteRedisPipeConsumer.%s)\n", err)
 						err = nil
-					} else {
-						err = deleteRedisPipeConsumer(tx, pipeKey, consumerName)
-						if err != nil {
-							fmt.Printf("deleteRedisPipeConsumer.%s)\n", err)
-							err = nil
-						}
 					}
-					wg.Done()
-				}(consumerName, cons)
-			}
-			wg.Wait()
-			return nil
-		}, pipeKey, pipeConsumersKey, pipeBufferKey)
+					err = red.Flush()
+					if err != nil {
+						fmt.Printf("redisConFlush.%s)\n", err)
+						err = nil
+					}
+					_, err = red.Receive()
+					if err != nil {
+						fmt.Printf("redisConReceive.%s)\n", err)
+						err = nil
+					}
+				}
+				wg.Done()
+			}(consumerName, cons)
+		}
+		wg.Wait()
 
-		red.Watch(func(tx *redis.Tx) (err error) {
-			currentTimeUnixNano = time.Now().UTC().UnixNano()
-			if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
-				err = deleteRedisPipe(tx, pipeKey)
-				if err != nil {
-					fmt.Printf("deleteRedisPipe.%s)\n", err)
-				} else {
-					quit = true
-					return
-				}
-			}
-			iteration, err = getRedisPipeIteration(tx, pipeKey)
+		currentTimeUnixNano = time.Now().UTC().UnixNano()
+		if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
+			err = deleteRedisPipe(red, pipeKey)
 			if err != nil {
-				fmt.Printf("getRedisPipeIteration.%s)\n", err)
-				waitFor = retryPeriod - time.Since(latestTryAt)
+				fmt.Printf("deleteRedisPipe.%s)\n", err)
+			} else {
 				return
 			}
-			waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iteration))) - time.Since(latestTryAt)
-			nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)
-			if nextTryAtUnixNano > dieAtUnixNano {
-				err = deleteRedisPipe(tx, pipeKey)
-				if err != nil {
-					fmt.Printf("deleteRedisPipe.%s)\n", err)
-				} else {
-					quit = true
-					return
-				}
-			}
-			err = incrRedisPipeIteration(tx, pipeKey)
+		}
+		iteration, err = getRedisPipeIteration(red, pipeKey)
+		if err != nil {
+			fmt.Printf("getRedisPipeIteration.%s)\n", err)
+			waitFor = retryPeriod - time.Since(latestTryAt)
+			return
+		}
+		waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iteration))) - time.Since(latestTryAt)
+		nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)
+		if nextTryAtUnixNano > dieAtUnixNano {
+			err = deleteRedisPipe(red, pipeKey)
 			if err != nil {
-				fmt.Printf("incrRedisPipeIteration.%s)\n", err)
+				fmt.Printf("deleteRedisPipe.%s)\n", err)
+			} else {
 				return
 			}
-			return nil
-		}, pipeKey, pipeConsumersKey, pipeBufferKey)
-		if quit {
+		}
+		err = incrRedisPipeIteration(red, pipeKey)
+		if err != nil {
+			fmt.Printf("incrRedisPipeIteration.%s)\n", err)
 			return
 		}
 		if waitFor <= 0 {
@@ -126,29 +138,29 @@ func presetRedisConvey(
 	}
 }
 
-func redisConveyAll(red *redis.Client, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
+func redisConveyAll(red redis.Conn, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
 	var (
 		pattern     = fmt.Sprintf(`%s\..{36}$`, pipeKeyPrefix)
 		maxTries    = 20
 		retryPeriod = 10 * time.Second
 		timer       *time.Timer
 		success     bool
-		sliceCmder  *redis.StringSliceCmd
 		err         error
-		keys        []string
+		sliceI      interface{}
+		keysI       []interface{}
+		pipeKeyI    interface{}
 	)
 	for i := 0; i < maxTries; i++ {
-		sliceCmder = red.Keys(pattern)
-		err = sliceCmder.Err()
+		sliceI, err = red.Do("KEYS", pattern)
 		if err != nil {
 			fmt.Printf("KEYS.%s; Try: %d\n", err, i)
 			timer = time.NewTimer(retryPeriod)
 			<-timer.C
 			continue
 		}
-		keys = sliceCmder.Val()
-		for _, pipeKey := range keys {
-			go redisConvey(red, pipeKey, consumers)
+		keysI = sliceI.([]interface{})
+		for _, pipeKeyI = range keysI {
+			go redisConvey(red, pipeKeyI.(string), consumers)
 		}
 		success = true
 		break
