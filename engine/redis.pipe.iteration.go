@@ -4,33 +4,34 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-redis/redis"
+	"github.com/gomodule/redigo/redis"
 )
 
-func getRedisPipeIteration(tx *redis.Tx, pipeKey string) (i int, err error) {
-	var cmder *redis.StringCmd
-	cmder = tx.HGet(pipeKey, "iteration")
-	err = cmder.Err()
+func getRedisPipeIteration(red *redis.Pool, pipeKey string) (i int, err error) {
+	conn := red.Get()
+	defer conn.Close()
+	iStr, err := conn.Do("HGET", pipeKey, "iteration")
 	if err != nil {
 		return -1, fmt.Errorf("(HGET pipeKey iteration).%s", err)
 	}
-	return strconv.Atoi(cmder.Val())
+	if iStr == nil {
+		return 0, nil
+	}
+	return strconv.Atoi(string(iStr.([]byte)))
 }
 
-func setRedisPipeIteration(tx *redis.Tx, pipeKey string, iter int) (err error) {
-	var cmder *redis.BoolCmd
-	cmder = tx.HSet(pipeKey, "iteration", iter)
-	err = cmder.Err()
+func setRedisPipeIteration(conn redis.Conn, pipeKey string, iter int) (err error) {
+	err = conn.Send("HSET", pipeKey, "iteration", iter)
 	if err != nil {
 		return fmt.Errorf("(HSET pipeKey iteration %d).%s", iter, err)
 	}
 	return nil
 }
 
-func incrRedisPipeIteration(tx *redis.Tx, pipeKey string) (err error) {
-	var cmder *redis.IntCmd
-	cmder = tx.HIncrBy(pipeKey, "iteration", 1)
-	err = cmder.Err()
+func incrRedisPipeIteration(red *redis.Pool, pipeKey string) (err error) {
+	conn := red.Get()
+	defer conn.Close()
+	_, err = conn.Do("HINCRBY", pipeKey, "iteration", 1)
 	if err != nil {
 		return fmt.Errorf("(HINCRBY pipeKey iteration 1).%s", err)
 	}

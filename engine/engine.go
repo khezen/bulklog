@@ -39,7 +39,7 @@ func New(cfg *config.Config) (Engine, error) {
 		}
 		var buffer Buffer
 		if cfg.Persistence.Enabled {
-			buffer = RedisBuffer(collec, cfg.Persistence.Redis, consumers)
+			buffer = RedisBuffer(collec, &cfg.Persistence.Redis, consumers)
 		} else {
 			buffer = DefaultBuffer(collec, consumers)
 		}

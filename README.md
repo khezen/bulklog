@@ -7,7 +7,7 @@ Collects, buffers, and outputs logs across multiple sources and destinations.
 
 *bulklog* is written in go and requires little resource.
 
-*bulklog* supports memory and [redis](https://redis.io/topics/persistence) buffering to prevent data loss.
+*bulklog* supports memory and [redis](https://redis.io/) buffering.
 *bulklog* also supports failover and can be set up for high availability.
 
 ---
@@ -81,6 +81,8 @@ persistence:
     endpoint: localhost:6379
     password: changeme #(optional)
     db: 0 #(optional, default:0)
+    idle_conn: 2 #(optional, default: 0)
+    max_conn: 10 #(optional, defaut: no limit)
 ```
 
 ### Output
@@ -161,7 +163,7 @@ map of fields by field name
 * **length**: `{field exact length}` (optional,string only)
 * **max_length**: `{field maximum length}` (optional, string only)
 * **date_format**: `{date time formatting}` (optional, datetime only)
-* 
+
 ---
 
 ## API
