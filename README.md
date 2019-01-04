@@ -43,7 +43,7 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.7`, `1.0`, `1`, `stable`
+* `1.0.8`, `1.0`, `1`, `stable`
 
 #### ENV
 
