@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/consumer"
+	"github.com/khezen/bulklog/redisc"
 )
 
-func redisConvey(red redis.Conn, pipeKey string, consumers map[string]consumer.Interface) {
+func redisConvey(red redisc.Connector, pipeKey string, consumers map[string]consumer.Interface) {
 	startedAt, retryPeriod, retentionPeriod, err := getRedisPipe(red, pipeKey)
 	if err == errRedisPipeNotFound {
 		err = deleteRedisPipe(red, pipeKey)
@@ -32,7 +32,7 @@ func redisConvey(red redis.Conn, pipeKey string, consumers map[string]consumer.I
 }
 
 func presetRedisConvey(
-	red redis.Conn, pipeKey string,
+	red redisc.Connector, pipeKey string,
 	consumers map[string]consumer.Interface,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
@@ -82,24 +82,13 @@ func presetRedisConvey(
 					err = deleteRedisPipeConsumer(red, pipeKey, consumerName)
 					if err != nil {
 						fmt.Printf("deleteRedisPipeConsumer.%s)\n", err)
-						err = nil
-					}
-					err = red.Flush()
-					if err != nil {
-						fmt.Printf("redisConFlush.%s)\n", err)
-						err = nil
-					}
-					_, err = red.Receive()
-					if err != nil {
-						fmt.Printf("redisConReceive.%s)\n", err)
-						err = nil
+						return
 					}
 				}
 				wg.Done()
 			}(consumerName, cons)
 		}
 		wg.Wait()
-
 		currentTimeUnixNano = time.Now().UTC().UnixNano()
 		if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
 			err = deleteRedisPipe(red, pipeKey)
@@ -138,7 +127,7 @@ func presetRedisConvey(
 	}
 }
 
-func redisConveyAll(red redis.Conn, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
+func redisConveyAll(red redisc.Connector, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
 	var (
 		pattern     = fmt.Sprintf(`%s\..{36}$`, pipeKeyPrefix)
 		maxTries    = 20
@@ -150,8 +139,13 @@ func redisConveyAll(red redis.Conn, pipeKeyPrefix string, consumers map[string]c
 		keysI       []interface{}
 		pipeKeyI    interface{}
 	)
+	conn, err := red.Open()
+	if err != nil {
+		fmt.Printf("redis.Open.%s\n", err)
+	}
+	defer conn.Close()
 	for i := 0; i < maxTries; i++ {
-		sliceI, err = red.Do("KEYS", pattern)
+		sliceI, err = conn.Do("KEYS", pattern)
 		if err != nil {
 			fmt.Printf("KEYS.%s; Try: %d\n", err, i)
 			timer = time.NewTimer(retryPeriod)

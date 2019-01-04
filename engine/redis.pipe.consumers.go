@@ -5,18 +5,24 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/consumer"
+	"github.com/khezen/bulklog/redisc"
 )
 
-func getRedisPipeConsumers(red redis.Conn, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {
+func getRedisPipeConsumers(red redisc.Connector, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {
+	conn, err := red.Open()
+	if err != nil {
+		return nil, fmt.Errorf("redis.Open.%s", err)
+	}
+	defer conn.Close()
 	key := fmt.Sprintf("%s.consumers", pipeKey)
-	remainingConsumersLen, err := red.Do("LLen", key)
+	remainingConsumersLen, err := conn.Do("LLen", key)
 	if err != nil {
 		return nil, fmt.Errorf("(LLEN pipeKey.consumers).%s", err)
 	}
 	if remainingConsumersLen == 0 {
 		return map[string]consumer.Interface{}, nil
 	}
-	remainingConsumerNamesI, err := red.Do("Range", key, 0, remainingConsumersLen)
+	remainingConsumerNamesI, err := conn.Do("Range", key, 0, remainingConsumersLen)
 	if err != nil {
 		return nil, fmt.Errorf("(LRANGE pipeKey.consumers).%s", err)
 	}
@@ -35,7 +41,7 @@ func getRedisPipeConsumers(red redis.Conn, pipeKey string, consumers map[string]
 	return remainingConsumers, nil
 }
 
-func addRedisPipeConsumers(red redis.Conn, pipeKey string, consumers map[string]consumer.Interface) (err error) {
+func addRedisPipeConsumers(conn redis.Conn, pipeKey string, consumers map[string]consumer.Interface) (err error) {
 	key := fmt.Sprintf("%s.consumers", pipeKey)
 	args := make([]interface{}, 0, len(consumers)+1)
 	args = append(args, key)
@@ -43,23 +49,28 @@ func addRedisPipeConsumers(red redis.Conn, pipeKey string, consumers map[string]
 	for consumerName = range consumers {
 		args = append(args, consumerName)
 	}
-	err = red.Send("RPUSH", args...)
+	err = conn.Send("RPUSH", args...)
 	if err != nil {
 		return fmt.Errorf("(RPUSH pipeKey.consumers consumerNames...).%s", err)
 	}
 	return
 }
 
-func deleteRedisPipeConsumer(red redis.Conn, pipeKey, consumerName string) (err error) {
-	err = red.Send("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
+func deleteRedisPipeConsumer(red redisc.Connector, pipeKey, consumerName string) (err error) {
+	conn, err := red.Open()
+	if err != nil {
+		return fmt.Errorf("redis.Open.%s", err)
+	}
+	defer conn.Close()
+	err = conn.Send("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
 	if err != nil {
 		return fmt.Errorf("(LREM pipeKey.consumers consumerName).%s", err)
 	}
 	return nil
 }
 
-func deleteRedisPipeConsumers(red redis.Conn, pipeKey string) (err error) {
-	err = red.Send("DEL", fmt.Sprintf("%s.consumers", pipeKey))
+func deleteRedisPipeConsumers(conn redis.Conn, pipeKey string) (err error) {
+	err = conn.Send("DEL", fmt.Sprintf("%s.consumers", pipeKey))
 	if err != nil {
 		return fmt.Errorf("(DEL pipeKey.consumers).%s", err)
 	}

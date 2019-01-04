@@ -8,19 +8,25 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/redisc"
 )
 
-func flushBuffer2RedisPipe(red redis.Conn, bufferKey, pipeKey string) (err error) {
-	err = red.Send("RENAME", bufferKey, fmt.Sprintf("%s.buffer", pipeKey))
+func flushBuffer2RedisPipe(conn redis.Conn, bufferKey, pipeKey string) (err error) {
+	err = conn.Send("RENAME", bufferKey, fmt.Sprintf("%s.buffer", pipeKey))
 	if err != nil {
 		return fmt.Errorf("RENAME(bufferKey pipeKey.buffer).%s", err)
 	}
 	return nil
 }
 
-func getRedisPipeDocuments(red redis.Conn, pipeKey string) (documents []collection.Document, err error) {
+func getRedisPipeDocuments(red redisc.Connector, pipeKey string) (documents []collection.Document, err error) {
+	conn, err := red.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
 	bufferKey := fmt.Sprintf("%s.buffer", pipeKey)
-	documentsLenI, err := red.Do("LLEN", bufferKey)
+	documentsLenI, err := conn.Do("LLEN", bufferKey)
 	if err != nil {
 		return nil, fmt.Errorf("(LLEN pipeKey.buffer).%s", err)
 	}
@@ -28,7 +34,7 @@ func getRedisPipeDocuments(red redis.Conn, pipeKey string) (documents []collecti
 	if documentsLen == 0 {
 		return []collection.Document{}, nil
 	}
-	docStringsI, err := red.Do("LRANGE", bufferKey, 0, documentsLen)
+	docStringsI, err := conn.Do("LRANGE", bufferKey, 0, documentsLen)
 	if err != nil {
 		return nil, fmt.Errorf("(LRANGE pipeKey.buffer 0 documentsLen).%s", err)
 	}
@@ -51,8 +57,8 @@ func getRedisPipeDocuments(red redis.Conn, pipeKey string) (documents []collecti
 	return documents, nil
 }
 
-func deleteRedisPipeDocuments(red redis.Conn, pipeKey string) (err error) {
-	err = red.Send("DEL", fmt.Sprintf("%s.buffer", pipeKey))
+func deleteRedisPipeDocuments(conn redis.Conn, pipeKey string) (err error) {
+	err = conn.Send("DEL", fmt.Sprintf("%s.buffer", pipeKey))
 	if err != nil {
 		return fmt.Errorf("(DEL pipeKey.buffer).%s", err)
 	}

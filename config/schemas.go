@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/khezen/bulklog/collection"
 	"github.com/khezen/bulklog/consumer"
+	"github.com/khezen/bulklog/redisc"
 )
 
 // Config contains all configuration for the logger
@@ -15,13 +16,6 @@ type Config struct {
 
 // Persistence -
 type Persistence struct {
-	Enabled bool  `yaml:"enabled"`
-	Redis   Redis `yaml:"redis"`
-}
-
-// Redis -
-type Redis struct {
-	Endpoint string `yaml:"endpoint"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
+	Enabled bool          `yaml:"enabled"`
+	Redis   redisc.Config `yaml:"redis"`
 }

@@ -161,7 +161,7 @@ map of fields by field name
 * **length**: `{field exact length}` (optional,string only)
 * **max_length**: `{field maximum length}` (optional, string only)
 * **date_format**: `{date time formatting}` (optional, datetime only)
-* 
+
 ---
 
 ## API

@@ -7,15 +7,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/config"
 	"github.com/khezen/bulklog/consumer"
+	"github.com/khezen/bulklog/redisc"
 )
 
 type redisBuffer struct {
-	redisCon      redis.Conn
+	redis         redisc.Connector
 	collection    *collection.Collection
 	consumers     map[string]consumer.Interface
 	bufferKey     string
@@ -26,17 +25,9 @@ type redisBuffer struct {
 }
 
 // RedisBuffer -
-func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consumers map[string]consumer.Interface) (Buffer, error) {
-	redisCon, err := redis.Dial(
-		"tcp", redisConfig.Endpoint,
-		redis.DialDatabase(redisConfig.DB),
-		redis.DialPassword(redisConfig.Password),
-	)
-	if err != nil {
-		return nil, err
-	}
+func RedisBuffer(collec *collection.Collection, redisCfg *redisc.Config, consumers map[string]consumer.Interface) Buffer {
 	rbuffer := &redisBuffer{
-		redisCon:      redisCon,
+		redis:         redisc.New(redisCfg),
 		collection:    collec,
 		consumers:     consumers,
 		bufferKey:     fmt.Sprintf("bulklog.%s.buffer", collec.Name),
@@ -45,8 +36,8 @@ func RedisBuffer(collec *collection.Collection, redisConfig config.Redis, consum
 		flushedAt:     time.Now().UTC(),
 		close:         make(chan struct{}),
 	}
-	redisConveyAll(rbuffer.redisCon, rbuffer.pipeKeyPrefix, rbuffer.consumers)
-	return rbuffer, nil
+	redisConveyAll(rbuffer.redis, rbuffer.pipeKeyPrefix, rbuffer.consumers)
+	return rbuffer
 }
 
 func (b *redisBuffer) Append(doc *collection.Document) (err error) {
@@ -56,7 +47,12 @@ func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 		return
 	}
 	docBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	_, err = b.redisCon.Do("RPUSH", b.bufferKey, docBase64)
+	conn, err := b.redis.Open()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Do("RPUSH", b.bufferKey, docBase64)
 	if err != nil {
 		return fmt.Errorf("(RPUSH collection.buffer docBase64).%s", err)
 	}
@@ -69,8 +65,12 @@ func (b *redisBuffer) Flush() (err error) {
 		pipeID  = uuid.New()
 		pipeKey = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
 	)
-
-	flushedAtStr, err := b.redisCon.Do("GET", b.timeKey)
+	conn, err := b.redis.Open()
+	if err != nil {
+		return fmt.Errorf("redis.Open.%s", err)
+	}
+	defer conn.Close()
+	flushedAtStr, err := conn.Do("GET", b.timeKey)
 	if err != nil {
 		return fmt.Errorf("(GET collection.flushedAt).%s", err)
 	}
@@ -83,12 +83,12 @@ func (b *redisBuffer) Flush() (err error) {
 	if time.Since(b.flushedAt) < b.collection.FlushPeriod {
 		return
 	}
-	length, err := b.redisCon.Do("LLEN", b.bufferKey)
+	length, err := conn.Do("LLEN", b.bufferKey)
 	if err != nil {
 		return fmt.Errorf("(LLEN bufferKey).%s", err)
 	}
 	if length == 0 {
-		_, err = b.redisCon.Do("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
+		_, err = conn.Do("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
 		if err != nil {
 			return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
 		}
@@ -97,32 +97,32 @@ func (b *redisBuffer) Flush() (err error) {
 	}
 	pipeID = uuid.New()
 	pipeKey = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
-	err = b.redisCon.Send("MULTI")
+	err = conn.Send("MULTI")
 	if err != nil {
 		return fmt.Errorf("MULTI.%s", err)
 	}
-	err = newRedisPipe(b.redisCon, pipeKey, b.collection.FlushPeriod, b.collection.RetentionPeriod, now)
+	err = newRedisPipe(conn, pipeKey, b.collection.FlushPeriod, b.collection.RetentionPeriod, now)
 	if err != nil {
 		return fmt.Errorf("newRedisPipe.%s", err)
 	}
-	err = addRedisPipeConsumers(b.redisCon, pipeKey, b.consumers)
+	err = addRedisPipeConsumers(conn, pipeKey, b.consumers)
 	if err != nil {
 		return fmt.Errorf("addRedisPipeConsumers.%s", err)
 	}
-	err = flushBuffer2RedisPipe(b.redisCon, b.bufferKey, pipeKey)
+	err = flushBuffer2RedisPipe(conn, b.bufferKey, pipeKey)
 	if err != nil {
 		return fmt.Errorf("flushBuffer2RedisPipe.%s", err)
 	}
-	err = b.redisCon.Send("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
+	err = conn.Send("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
 	if err != nil {
 		return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
 	}
 	b.flushedAt = now
-	_, err = b.redisCon.Do("EXEC")
+	_, err = conn.Do("EXEC")
 	if err != nil {
 		return fmt.Errorf("EXEC.%s", err)
 	}
-	go presetRedisConvey(b.redisCon, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
+	go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
 
