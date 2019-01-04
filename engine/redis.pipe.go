@@ -35,40 +35,28 @@ func getRedisPipe(red *redis.Pool, pipeKey string) (
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey startedAt).%s", err)
 	}
-	err = conn.Send("EXEC")
+	resultsI, err := conn.Do("EXEC")
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("EXEC.%s", err)
 	}
-	err = conn.Flush()
-	if err != nil {
-		return time.Time{}, 0, 0, fmt.Errorf("redisConFlush.%s", err)
-	}
-	retryPeriodStr, err := conn.Receive()
-	if err != nil {
-		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retryPeriodNano).%s", err)
-	}
-	if retryPeriodStr == nil {
+	results := resultsI.([]interface{})
+	if results[0] == nil {
 		return time.Time{}, 0, 0, errRedisPipeNotFound
 	}
-	retryPeriodInt, err := strconv.Atoi(string(retryPeriodStr.([]byte)))
+	retryPeriodStr := string(results[0].([]byte))
+	retryPeriodInt, err := strconv.Atoi(retryPeriodStr)
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("retryPeriodAtoi.%s", err)
 	}
 	retryPeriod = time.Duration(retryPeriodInt)
-	retentionPeriodStr, err := conn.Receive()
-	if err != nil {
-		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retentionPeriodNano).%s", err)
-	}
-	retentionPeriodInt, err := strconv.Atoi(string(retentionPeriodStr.([]byte)))
+	retentionPeriodStr := string(results[1].([]byte))
+	retentionPeriodInt, err := strconv.Atoi(retentionPeriodStr)
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("retentionPeriodAtoi.%s", err)
 	}
 	retentionPeriod = time.Duration(retentionPeriodInt)
-	startedAtStr, err := conn.Receive()
-	if err != nil {
-		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey startedAt).%s", err)
-	}
-	startedAt, err = time.Parse(time.RFC3339Nano, string(startedAtStr.([]byte)))
+	startedAtStr := string(results[2].([]byte))
+	startedAt, err = time.Parse(time.RFC3339Nano, startedAtStr)
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("parseStartedAtStr.%s", err)
 	}

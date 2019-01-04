@@ -26,7 +26,6 @@ func getRedisPipeDocuments(red *redis.Pool, pipeKey string) (documents []collect
 	if err != nil {
 		return nil, fmt.Errorf("(LLEN pipeKey.buffer).%s", err)
 	}
-	fmt.Println("LLEN", bufferKey, "=", documentsLenI)
 	documentsLen := documentsLenI.(int64)
 	if documentsLen == 0 {
 		return []collection.Document{}, nil
