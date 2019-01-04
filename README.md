@@ -199,13 +199,13 @@ HTTP/1.1 200 OK
 ### health
 
 ```http
-GET /v1/liveness HTTP/1.1
+GET /liveness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```
 
 ```http
-GET /v1/readiness HTTP/1.1
+GET /readiness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```
