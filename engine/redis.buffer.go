@@ -49,7 +49,7 @@ func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 	docBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
 	conn, err := b.redis.Open()
 	if err != nil {
-		return err
+		return fmt.Errorf("redis.Open.%s", err)
 	}
 	defer conn.Close()
 	_, err = conn.Do("RPUSH", b.bufferKey, docBase64)

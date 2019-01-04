@@ -22,7 +22,7 @@ func flushBuffer2RedisPipe(conn redis.Conn, bufferKey, pipeKey string) (err erro
 func getRedisPipeDocuments(red redisc.Connector, pipeKey string) (documents []collection.Document, err error) {
 	conn, err := red.Open()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("redis.Open.%s", err)
 	}
 	defer conn.Close()
 	bufferKey := fmt.Sprintf("%s.buffer", pipeKey)
