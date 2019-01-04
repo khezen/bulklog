@@ -17,7 +17,7 @@ func getRedisPipeIteration(red *redis.Pool, pipeKey string) (i int, err error) {
 	if iStr == nil {
 		return 0, nil
 	}
-	return strconv.Atoi(iStr.(string))
+	return strconv.Atoi(string(iStr.([]byte)))
 }
 
 func setRedisPipeIteration(conn redis.Conn, pipeKey string, iter int) (err error) {

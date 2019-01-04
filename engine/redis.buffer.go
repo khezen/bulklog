@@ -102,7 +102,7 @@ func (b *redisBuffer) Flush() (err error) {
 		return fmt.Errorf("(GET collection.flushedAt).%s", err)
 	}
 	if flushedAtStr != "" {
-		b.flushedAt, err = time.Parse(time.RFC3339Nano, flushedAtStr.(string))
+		b.flushedAt, err = time.Parse(time.RFC3339Nano, string(flushedAtStr.([]byte)))
 		if err != nil {
 			return fmt.Errorf("parseFlushedAtStr.%s", err)
 		}

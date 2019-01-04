@@ -26,6 +26,7 @@ func getRedisPipeDocuments(red *redis.Pool, pipeKey string) (documents []collect
 	if err != nil {
 		return nil, fmt.Errorf("(LLEN pipeKey.buffer).%s", err)
 	}
+	fmt.Println("LLEN", bufferKey, "=", documentsLenI)
 	documentsLen := documentsLenI.(int64)
 	if documentsLen == 0 {
 		return []collection.Document{}, nil
@@ -38,7 +39,7 @@ func getRedisPipeDocuments(red *redis.Pool, pipeKey string) (documents []collect
 	documents = make([]collection.Document, 0, documentsLen)
 	var buf *bytes.Buffer
 	for _, docBase64 := range docStrings {
-		docBytes, err := base64.StdEncoding.DecodeString(docBase64.(string))
+		docBytes, err := base64.StdEncoding.DecodeString(string(docBase64.([]byte)))
 		if err != nil {
 			return nil, fmt.Errorf("base64.std.decode.%s", err)
 		}

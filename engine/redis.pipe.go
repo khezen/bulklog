@@ -50,7 +50,7 @@ func getRedisPipe(red *redis.Pool, pipeKey string) (
 	if retryPeriodStr == nil {
 		return time.Time{}, 0, 0, errRedisPipeNotFound
 	}
-	retryPeriodInt, err := strconv.Atoi(retryPeriodStr.(string))
+	retryPeriodInt, err := strconv.Atoi(string(retryPeriodStr.([]byte)))
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("retryPeriodAtoi.%s", err)
 	}
@@ -59,7 +59,7 @@ func getRedisPipe(red *redis.Pool, pipeKey string) (
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retentionPeriodNano).%s", err)
 	}
-	retentionPeriodInt, err := strconv.Atoi(retentionPeriodStr.(string))
+	retentionPeriodInt, err := strconv.Atoi(string(retentionPeriodStr.([]byte)))
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("retentionPeriodAtoi.%s", err)
 	}
@@ -68,7 +68,7 @@ func getRedisPipe(red *redis.Pool, pipeKey string) (
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey startedAt).%s", err)
 	}
-	startedAt, err = time.Parse(time.RFC3339Nano, startedAtStr.(string))
+	startedAt, err = time.Parse(time.RFC3339Nano, string(startedAtStr.([]byte)))
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("parseStartedAtStr.%s", err)
 	}
@@ -98,6 +98,10 @@ func newRedisPipe(conn redis.Conn, pipeKey string, retryPeriod, retentionPeriod 
 func deleteRedisPipe(red *redis.Pool, pipeKey string) (err error) {
 	conn := red.Get()
 	defer conn.Close()
+	err = conn.Send("MULTI")
+	if err != nil {
+		return fmt.Errorf("MULTI.%s", err)
+	}
 	err = conn.Send("DEL", pipeKey)
 	if err != nil {
 		return fmt.Errorf("DEL pipeKey).%s", err)
@@ -109,6 +113,10 @@ func deleteRedisPipe(red *redis.Pool, pipeKey string) (err error) {
 	err = deleteRedisPipeDocuments(conn, pipeKey)
 	if err != nil {
 		return fmt.Errorf("deleteRedisPipeDocuments.%s", err)
+	}
+	_, err = conn.Do("EXEC")
+	if err != nil {
+		return fmt.Errorf("EXEC.%s", err)
 	}
 	return nil
 }

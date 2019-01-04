@@ -18,7 +18,7 @@ func getRedisPipeConsumers(red *redis.Pool, pipeKey string, consumers map[string
 	if remainingConsumersLen == 0 {
 		return map[string]consumer.Interface{}, nil
 	}
-	remainingConsumerNamesI, err := conn.Do("Range", key, 0, remainingConsumersLen)
+	remainingConsumerNamesI, err := conn.Do("LRANGE", key, 0, remainingConsumersLen)
 	if err != nil {
 		return nil, fmt.Errorf("(LRANGE pipeKey.consumers).%s", err)
 	}
@@ -29,7 +29,7 @@ func getRedisPipeConsumers(red *redis.Pool, pipeKey string, consumers map[string
 		consumerName  string
 	)
 	for _, consumerNameI = range remainingConsumerNames {
-		consumerName = consumerNameI.(string)
+		consumerName = string(consumerNameI.([]byte))
 		if cons, ok := consumers[consumerName]; ok {
 			remainingConsumers[consumerName] = cons
 		}
@@ -55,7 +55,7 @@ func addRedisPipeConsumers(conn redis.Conn, pipeKey string, consumers map[string
 func deleteRedisPipeConsumer(red *redis.Pool, pipeKey, consumerName string) (err error) {
 	conn := red.Get()
 	defer conn.Close()
-	err = conn.Send("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
+	_, err = conn.Do("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
 	if err != nil {
 		return fmt.Errorf("(LREM pipeKey.consumers consumerName).%s", err)
 	}
