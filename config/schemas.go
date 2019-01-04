@@ -24,4 +24,6 @@ type Redis struct {
 	Endpoint string `yaml:"endpoint"`
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
+	IdleConn int    `yaml:"idle_conn"`
+	MaxConn  int    `yaml:"max_conn"`
 }

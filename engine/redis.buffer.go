@@ -29,7 +29,9 @@ type redisBuffer struct {
 func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, consumers map[string]consumer.Interface) Buffer {
 	rbuffer := &redisBuffer{
 		redis: &redis.Pool{
-			MaxIdle:     3,
+			MaxActive:   redisCfg.MaxConn,
+			Wait:        true,
+			MaxIdle:     redisCfg.IdleConn,
 			IdleTimeout: 5 * time.Minute,
 			Dial: func() (redis.Conn, error) {
 				c, err := redis.Dial("tcp", redisCfg.Endpoint)
@@ -47,6 +49,13 @@ func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, consumer
 					return nil, err
 				}
 				return c, nil
+			},
+			TestOnBorrow: func(c redis.Conn, t time.Time) error {
+				if time.Since(t) < time.Minute {
+					return nil
+				}
+				_, err := c.Do("PING")
+				return err
 			},
 		},
 		collection:    collec,

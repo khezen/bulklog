@@ -81,6 +81,8 @@ persistence:
     endpoint: localhost:6379
     password: changeme #(optional)
     db: 0 #(optional, default:0)
+    idle_conn: 2 #(optional, default: 0)
+    max_conn: 10 #(optional, defaut: no limit)
 ```
 
 ### Output

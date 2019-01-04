@@ -7,6 +7,8 @@ persistence:
 #   endpoint: localhost:6379
 #   password: changeme
 #   db: 0
+#   idle_conn: 2
+#   max_conn: 10
 
 output: 
   elasticsearch:
