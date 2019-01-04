@@ -7,21 +7,17 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/redisc"
 )
 
 var (
 	errRedisPipeNotFound = errors.New("errRedisPipeNotFound")
 )
 
-func getRedisPipe(red redisc.Connector, pipeKey string) (
+func getRedisPipe(red *redis.Pool, pipeKey string) (
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration,
 	err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return time.Time{}, 0, 0, fmt.Errorf("redis.Open.%s", err)
-	}
+	conn := red.Get()
 	defer conn.Close()
 	err = conn.Send("MULTI")
 	if err != nil {
@@ -99,11 +95,8 @@ func newRedisPipe(conn redis.Conn, pipeKey string, retryPeriod, retentionPeriod 
 	return nil
 }
 
-func deleteRedisPipe(red redisc.Connector, pipeKey string) (err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return fmt.Errorf("redis.Open.%s", err)
-	}
+func deleteRedisPipe(red *redis.Pool, pipeKey string) (err error) {
+	conn := red.Get()
 	defer conn.Close()
 	err = conn.Send("DEL", pipeKey)
 	if err != nil {

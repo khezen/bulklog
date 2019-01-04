@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/consumer"
-	"github.com/khezen/bulklog/redisc"
 )
 
-func redisConvey(red redisc.Connector, pipeKey string, consumers map[string]consumer.Interface) {
+func redisConvey(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) {
 	startedAt, retryPeriod, retentionPeriod, err := getRedisPipe(red, pipeKey)
 	if err == errRedisPipeNotFound {
 		err = deleteRedisPipe(red, pipeKey)
@@ -32,7 +32,7 @@ func redisConvey(red redisc.Connector, pipeKey string, consumers map[string]cons
 }
 
 func presetRedisConvey(
-	red redisc.Connector, pipeKey string,
+	red *redis.Pool, pipeKey string,
 	consumers map[string]consumer.Interface,
 	startedAt time.Time,
 	retryPeriod, retentionPeriod time.Duration) {
@@ -127,7 +127,7 @@ func presetRedisConvey(
 	}
 }
 
-func redisConveyAll(red redisc.Connector, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
+func redisConveyAll(red *redis.Pool, pipeKeyPrefix string, consumers map[string]consumer.Interface) {
 	var (
 		pattern     = fmt.Sprintf(`%s\..{36}$`, pipeKeyPrefix)
 		maxTries    = 20
@@ -139,13 +139,10 @@ func redisConveyAll(red redisc.Connector, pipeKeyPrefix string, consumers map[st
 		keysI       []interface{}
 		pipeKeyI    interface{}
 	)
-	conn, err := red.Open()
-	if err != nil {
-		fmt.Printf("redis.Open.%s\n", err)
-	}
-	defer conn.Close()
 	for i := 0; i < maxTries; i++ {
+		conn := red.Get()
 		sliceI, err = conn.Do("KEYS", pattern)
+		conn.Close()
 		if err != nil {
 			fmt.Printf("KEYS.%s; Try: %d\n", err, i)
 			timer = time.NewTimer(retryPeriod)

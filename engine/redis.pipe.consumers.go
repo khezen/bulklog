@@ -5,14 +5,10 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/consumer"
-	"github.com/khezen/bulklog/redisc"
 )
 
-func getRedisPipeConsumers(red redisc.Connector, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return nil, fmt.Errorf("redis.Open.%s", err)
-	}
+func getRedisPipeConsumers(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {
+	conn := red.Get()
 	defer conn.Close()
 	key := fmt.Sprintf("%s.consumers", pipeKey)
 	remainingConsumersLen, err := conn.Do("LLen", key)
@@ -56,11 +52,8 @@ func addRedisPipeConsumers(conn redis.Conn, pipeKey string, consumers map[string
 	return
 }
 
-func deleteRedisPipeConsumer(red redisc.Connector, pipeKey, consumerName string) (err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return fmt.Errorf("redis.Open.%s", err)
-	}
+func deleteRedisPipeConsumer(red *redis.Pool, pipeKey, consumerName string) (err error) {
+	conn := red.Get()
 	defer conn.Close()
 	err = conn.Send("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
 	if err != nil {

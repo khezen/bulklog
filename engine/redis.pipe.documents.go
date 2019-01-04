@@ -8,7 +8,6 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/redisc"
 )
 
 func flushBuffer2RedisPipe(conn redis.Conn, bufferKey, pipeKey string) (err error) {
@@ -19,11 +18,8 @@ func flushBuffer2RedisPipe(conn redis.Conn, bufferKey, pipeKey string) (err erro
 	return nil
 }
 
-func getRedisPipeDocuments(red redisc.Connector, pipeKey string) (documents []collection.Document, err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return nil, fmt.Errorf("redis.Open.%s", err)
-	}
+func getRedisPipeDocuments(red *redis.Pool, pipeKey string) (documents []collection.Document, err error) {
+	conn := red.Get()
 	defer conn.Close()
 	bufferKey := fmt.Sprintf("%s.buffer", pipeKey)
 	documentsLenI, err := conn.Do("LLEN", bufferKey)

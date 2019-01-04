@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/config"
 	"github.com/khezen/bulklog/consumer"
-	"github.com/khezen/bulklog/redisc"
 )
 
 type redisBuffer struct {
-	redis         redisc.Connector
+	redis         *redis.Pool
 	collection    *collection.Collection
 	consumers     map[string]consumer.Interface
 	bufferKey     string
@@ -25,9 +26,29 @@ type redisBuffer struct {
 }
 
 // RedisBuffer -
-func RedisBuffer(collec *collection.Collection, redisCfg *redisc.Config, consumers map[string]consumer.Interface) Buffer {
+func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, consumers map[string]consumer.Interface) Buffer {
 	rbuffer := &redisBuffer{
-		redis:         redisc.New(redisCfg),
+		redis: &redis.Pool{
+			MaxIdle:     3,
+			IdleTimeout: 5 * time.Minute,
+			Dial: func() (redis.Conn, error) {
+				c, err := redis.Dial("tcp", redisCfg.Endpoint)
+				if err != nil {
+					return nil, err
+				}
+				if redisCfg.Password != "" {
+					if _, err := c.Do("AUTH", redisCfg.Password); err != nil {
+						c.Close()
+						return nil, err
+					}
+				}
+				if _, err := c.Do("SELECT", redisCfg.DB); err != nil {
+					c.Close()
+					return nil, err
+				}
+				return c, nil
+			},
+		},
 		collection:    collec,
 		consumers:     consumers,
 		bufferKey:     fmt.Sprintf("bulklog.%s.buffer", collec.Name),
@@ -47,10 +68,7 @@ func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 		return
 	}
 	docBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	conn, err := b.redis.Open()
-	if err != nil {
-		return fmt.Errorf("redis.Open.%s", err)
-	}
+	conn := b.redis.Get()
 	defer conn.Close()
 	_, err = conn.Do("RPUSH", b.bufferKey, docBase64)
 	if err != nil {
@@ -65,7 +83,7 @@ func (b *redisBuffer) Flush() (err error) {
 		pipeID  = uuid.New()
 		pipeKey = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
 	)
-	conn, err := b.redis.Open()
+	conn := b.redis.Get()
 	if err != nil {
 		return fmt.Errorf("redis.Open.%s", err)
 	}

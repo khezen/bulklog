@@ -5,14 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/redisc"
 )
 
-func getRedisPipeIteration(red redisc.Connector, pipeKey string) (i int, err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return -1, fmt.Errorf("redis.Open.%s", err)
-	}
+func getRedisPipeIteration(red *redis.Pool, pipeKey string) (i int, err error) {
+	conn := red.Get()
 	defer conn.Close()
 	iStr, err := conn.Do("HGET", pipeKey, "iteration")
 	if err != nil {
@@ -32,11 +28,8 @@ func setRedisPipeIteration(conn redis.Conn, pipeKey string, iter int) (err error
 	return nil
 }
 
-func incrRedisPipeIteration(red redisc.Connector, pipeKey string) (err error) {
-	conn, err := red.Open()
-	if err != nil {
-		return fmt.Errorf("redis.Open.%s", err)
-	}
+func incrRedisPipeIteration(red *redis.Pool, pipeKey string) (err error) {
+	conn := red.Get()
 	defer conn.Close()
 	_, err = conn.Do("HINCRBY", pipeKey, "iteration", 1)
 	if err != nil {
