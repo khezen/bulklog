@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/khezen/bulklog/collection"
 	"github.com/khezen/bulklog/engine"
 )
 
@@ -23,6 +24,8 @@ func HTTPStatusCode(err error) int {
 		return 404
 	case ErrWrongMethod:
 		return 405
+	case collection.ErrUnparsableJSON:
+		return 422
 	default:
 		return 500
 	}
