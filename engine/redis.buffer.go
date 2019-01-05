@@ -93,9 +93,6 @@ func (b *redisBuffer) Flush() (err error) {
 		pipeKey = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
 	)
 	conn := b.redis.Get()
-	if err != nil {
-		return fmt.Errorf("redis.Open.%s", err)
-	}
 	defer conn.Close()
 	flushedAtStr, err := conn.Do("GET", b.timeKey)
 	if err != nil {
@@ -110,11 +107,11 @@ func (b *redisBuffer) Flush() (err error) {
 	if time.Since(b.flushedAt) < b.collection.FlushPeriod {
 		return
 	}
-	length, err := conn.Do("LLEN", b.bufferKey)
+	bufferLen, err := conn.Do("LLEN", b.bufferKey)
 	if err != nil {
 		return fmt.Errorf("(LLEN bufferKey).%s", err)
 	}
-	if length == 0 {
+	if bufferLen == 0 {
 		_, err = conn.Do("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
 		if err != nil {
 			return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
@@ -144,11 +141,11 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
 	}
-	b.flushedAt = now
 	_, err = conn.Do("EXEC")
 	if err != nil {
 		return fmt.Errorf("EXEC.%s", err)
 	}
+	b.flushedAt = now
 	go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
