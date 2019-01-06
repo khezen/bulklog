@@ -16,7 +16,6 @@ unit_tests(){
             fi
         fi
     done
-    echo $ret
     return $ret
 }
 
