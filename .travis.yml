@@ -10,7 +10,7 @@ script:
     ex=0 \n
     for d in $(go list ./... | grep -v vendor); do \n
         COV=$(go test -race  -coverprofile=profile.out -covermode=atomic $d | sed  's/[^0-9]*\\([0-9]*\\.[0-9]\\).*/\\1/') | if [[ ( $COV -lt 75 ) ]]; then \n 
-          echo expecting test coverage greater than 75 %, got insufficient $COV % ; \n
+          echo expecting test coverage greater than 75 %, got insufficient $COV % for package $d; \n
           if [[ ( $ex -eq 0) ]]; then \n
             ex=1 \n
           fi \n
