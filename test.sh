@@ -9,7 +9,7 @@ unit_tests(){
             cat profile.out >> coverage.txt;
             rm profile.out;
         fi 
-        if [[ ( $COV < 75.0 ) ]]; then  
+        if [[ $COV < 75.0 ]]; then  
             echo expecting test coverage greater than 75 %, got insufficient $COV % for package $d; 
             if test $ret -eq 0; then
                 ret=1
