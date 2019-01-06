@@ -11,9 +11,7 @@ unit_tests(){
         fi 
         if test $COV -lt 75; then  
             echo expecting test coverage greater than 75 %, got insufficient $COV % for package $d; 
-            if test $ret -eq 0; then
-                ret=1
-            fi
+            ret=1
         fi
     done
     return $ret
