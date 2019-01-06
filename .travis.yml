@@ -25,4 +25,5 @@ script:
     exit $ex"
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - test $TRAVIS_BRANCH = "master" && 
+    bash <(curl -s https://codecov.io/bash)
