@@ -7,10 +7,10 @@ install:
 script:
   - echo "" > coverage.txt
   - "for d in $(go list ./... | grep -v vendor); do \n
-        COV=$(go test -race  -coverprofile=profile.out -covermode=atomic $d | sed  's/[^0-9]*\([0-9]*\.[0-9]\).*/\1/') | if [[ ( $COV -lt 70 ) ]]; then 
-          echo insufficient tests; 
+        COV=$(go test -race  -coverprofile=profile.out -covermode=atomic $d | sed  's/[^0-9]*\([0-9]*\.[0-9]\).*/\1/') | if [[ ( $COV -lt 70 ) ]]; then \n 
+          echo insufficient tests; \n
           exit 1 \n
-        fi
+        fi \n
         go test -race -coverprofile=profile.out -covermode=atomic $d \n
         if [ $? -gt 0 ]; then \n
           exit 1 \n
