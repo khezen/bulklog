@@ -6,10 +6,14 @@ install:
 
 script:
   - echo "" > coverage.txt
-  - "for d in $(go list ./... | grep -v vendor); do \n
+  - "
+    ex=0
+    for d in $(go list ./... | grep -v vendor); do \n
         COV=$(go test -race  -coverprofile=profile.out -covermode=atomic $d | sed  's/[^0-9]*\\([0-9]*\\.[0-9]\\).*/\\1/') | if [[ ( $COV -lt 75 ) ]]; then \n 
           echo expecting test coverage greater than 75 %, got insufficient $COV % ; \n
-          exit 1; \n
+          if [[ ( $ex -eq 0) ]]; then \n
+            ex=1
+          fi \n
         fi \n
         if [ $? -gt 0 ]; then \n
           exit 1; \n
@@ -17,7 +21,8 @@ script:
           cat profile.out >> coverage.txt \n
           rm profile.out \n
       fi \n
-    done"
+    done\n
+    exit $ex"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
