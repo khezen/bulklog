@@ -11,7 +11,6 @@ script:
           echo expecting test coverage greater than 75 %, got insufficient $COV % ; \n
           exit 1 \n
         fi \n
-        go test -race -coverprofile=profile.out -covermode=atomic $d \n
         if [ $? -gt 0 ]; then \n
           exit 1 \n
         elif [ -f profile.out ]; then \n
