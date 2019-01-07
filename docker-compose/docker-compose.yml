@@ -22,7 +22,7 @@ services:
     volumes:
       - ./bulklog/config/:/etc/bulklog:ro
     ports:
-      - "5000:5000"
+      - "5017:5017"
     networks:
       - elk
     depends_on:
