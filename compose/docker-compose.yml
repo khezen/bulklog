@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+
+  bulklog:
+    image: khezen/bulklog:latest
+    volumes:
+      - ./bulklog/config/:/etc/bulklog:ro
+    ports:
+      - "5000:5000"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - redis
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+  
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - elk
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - elk
+    depends_on:
+      - redis
+
+
+networks:
+
+  elk:
+    driver: bridge
