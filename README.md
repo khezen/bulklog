@@ -106,7 +106,18 @@ output:
 
 ### Collections
 
-example:
+examples:
+
+```yaml
+collections:
+  - name: logs
+    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
+    retention_period: 45 minutes
+    schemas:
+      log: {}
+```
+
+*bulklog* is schema free but we encourage you to provide some base structure since it might enbale consumers to store data more efficiently.
 
 ```yaml
 collections:
@@ -128,6 +139,8 @@ collections:
           type: datetime
           date_format: 2006-01-02T15:04:05.999999999Z07:00
 ```
+
+Even in the case above, *bulklog* remains schema free enabling workloads to decorate logs with additional information.
 
 #### collection
 
