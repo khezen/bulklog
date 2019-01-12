@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	config "github.com/khezen/bulklog/config"
-	"github.com/khezen/bulklog/engine"
+	config "github.com/bulklog/bulklog/config"
+	"github.com/bulklog/bulklog/engine"
 )
 
 const defaultPort = 5017

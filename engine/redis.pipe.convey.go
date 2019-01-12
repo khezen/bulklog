@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/consumer"
+	"github.com/bulklog/bulklog/consumer"
 )
 
 func redisConvey(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) {

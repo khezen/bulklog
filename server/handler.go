@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/khezen/bulklog/collection"
+	"github.com/bulklog/bulklog/collection"
 )
 
 // POST /v1/{collection}/{schema}

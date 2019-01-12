@@ -18,7 +18,7 @@ services:
       - elk
 
   bulklog:
-    image: khezen/bulklog:latest
+    image: bulklog/bulklog:latest
     volumes:
       - ./bulklog/config/:/etc/bulklog:ro
     ports:

@@ -9,9 +9,9 @@ RUN mkdir /default \
 && mv /tmp/app/entrypoint.sh /entrypoint.sh \
 && chmod +x /entrypoint.sh
 # compilation
-RUN mkdir -p /usr/local/go/src/github.com/khezen/ \
-&&  mv /tmp/app /usr/local/go/src/github.com/khezen/bulklog \
-&&  go build -o /bin/bulklog github.com/khezen/bulklog
+RUN mkdir -p /usr/local/go/src/github.com/bulklog/ \
+&&  mv /tmp/app /usr/local/go/src/github.com/bulklog/bulklog \
+&&  go build -o /bin/bulklog github.com/bulklog/bulklog
 
 FROM alpine:3.8
 COPY --from=build /default/config.yaml /default/config.yaml

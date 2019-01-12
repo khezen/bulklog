@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/consumer"
+	"github.com/bulklog/bulklog/consumer"
 )
 
 func getRedisPipeConsumers(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {

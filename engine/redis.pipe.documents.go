@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/collection"
+	"github.com/bulklog/bulklog/collection"
 )
 
 func flushBuffer2RedisPipe(conn redis.Conn, bufferKey, pipeKey string) (err error) {

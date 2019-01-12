@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/khezen/bulklog/collection"
+	"github.com/bulklog/bulklog/collection"
 )
 
 // Engine -

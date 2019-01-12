@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/khezen/bulklog/config"
-	"github.com/khezen/bulklog/server"
+	"github.com/bulklog/bulklog/config"
+	"github.com/bulklog/bulklog/server"
 )
 
 const (

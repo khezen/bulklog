@@ -1,7 +1,7 @@
 package consumer
 
 import (
-	"github.com/khezen/bulklog/consumer/elastic"
+	"github.com/bulklog/bulklog/consumer/elastic"
 )
 
 // Config -

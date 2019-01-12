@@ -9,9 +9,9 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
-	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/config"
-	"github.com/khezen/bulklog/consumer"
+	"github.com/bulklog/bulklog/collection"
+	"github.com/bulklog/bulklog/config"
+	"github.com/bulklog/bulklog/consumer"
 )
 
 type redisBuffer struct {

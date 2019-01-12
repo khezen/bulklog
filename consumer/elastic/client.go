@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/khezen/bulklog/auth"
-	"github.com/khezen/bulklog/collection"
+	"github.com/bulklog/bulklog/auth"
+	"github.com/bulklog/bulklog/collection"
 )
 
 var (

@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/consumer"
+	"github.com/bulklog/bulklog/collection"
+	"github.com/bulklog/bulklog/consumer"
 )
 
 const bufferLimit = 10000
