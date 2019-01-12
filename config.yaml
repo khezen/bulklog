@@ -3,12 +3,12 @@ port: 5017
 
 persistence:
   enabled: false
-# redis:
-#   endpoint: localhost:6379
-#   password: changeme
-#   db: 0
-#   idle_conn: 2
-#   max_conn: 10
+  redis:
+    endpoint: localhost:6379
+    password: changeme
+    db: 0
+    idle_conn: 2
+    max_conn: 10
 
 output: 
   elasticsearch:
@@ -36,42 +36,12 @@ collections:
           type: string
         message: 
           type: string
-        request_id: 
-          type: string
-        occured_at:
-          type: datetime
-          date_format: 2006-01-02T15:04:05.999999999Z07:00
-  - name: web
-    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-    retention_period: 45 minutes
-    schemas:
-      trace:
-        source: 
-          type: string
-        request_id: 
+        transaction_id: 
           type: string
           length: 36
-        client_ip: 
-          type: string
-        host: 
-          type: string
-        path: 
-          type: string
-        method: 
-          type: string
-          max_length: 6
-        request_dump: 
-          type: string
-        status_code: 
-          type: int16
-        response_dump: 
-          type: string
-        response_time_ms: 
-          type: uint32
         occured_at:
           type: datetime
           date_format: 2006-01-02T15:04:05.999999999Z07:00
-
 
 # # # # # # # # # # # # # # # # # #
 # create a collection of your own #

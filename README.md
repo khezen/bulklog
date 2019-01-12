@@ -110,33 +110,20 @@ example:
 
 ```yaml
 collections:
-  - name: web
+  - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
     schemas:
-      trace:
-        source:
+      log:
+        source: 
+          type: string 
+        level: 
           type: string
-        request_id:
+        message: 
+          type: string
+        transaction_id: 
           type: string
           length: 36
-        client_ip:
-          type: string
-        host:
-          type: string
-        path:
-          type: string
-        method:
-          type: string
-          max_length: 6
-        request_dump:
-          type: string
-        status_code:
-          type: int16
-        response_dump:
-          type: string
-        response_time_ms:
-          type: int32
         occured_at:
           type: datetime
           date_format: 2006-01-02T15:04:05.999999999Z07:00
@@ -187,7 +174,7 @@ POST /v1/logs/log HTTP/1.1
 Content-Type: application/json
 {
   "source":"service1",
-  "request_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
+  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
   "level": "Fatal",
   "message": "divizion by zero",
   "occured_at": "2018-11-15T14:12:12Z"
