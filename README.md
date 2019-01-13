@@ -127,17 +127,16 @@ collections:
     schemas:
       log:
         source: 
-          type: string 
+          type: string
+          max_length: 64
         stream: 
           type: string
+          length: 6
         message: 
           type: string
         time:
           type: datetime
           date_format: 2006-01-02T15:04:05.999999999Z07:00
-        transaction_id: 
-          type: string
-          length: 36
 ```
 
 Even in the case above, *bulklog* remains schema free enabling workloads to decorate logs with additional information.
@@ -189,8 +188,7 @@ Content-Type: application/json
   "source":"service1",
   "stream": "stderr",
   "message": "divizion by zero",
-  "time": "2018-11-15T14:12:12Z",
-  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78"
+  "time": "2018-11-15T14:12:12Z"
 }
 
 HTTP/1.1 200 OK
