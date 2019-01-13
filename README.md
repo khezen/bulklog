@@ -189,8 +189,8 @@ Content-Type: application/json
   "source":"service1",
   "stream": "stderr",
   "message": "divizion by zero",
-  "time": "2018-11-15T14:12:12Z"
-  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
+  "time": "2018-11-15T14:12:12Z",
+  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78"
 }
 
 HTTP/1.1 200 OK
