@@ -5,6 +5,10 @@ persistence:
   enabled: true
   redis:
     endpoint: redis:6379
+    password: ""
+    db: 0
+    idle_conn: 2
+    max_conn: 10
 
 output: 
   elasticsearch:
@@ -22,46 +26,21 @@ output:
 
 collections:
   - name: logs
-    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-    retention_period: 10 seconds
+    flush_period: 60 seconds # hours|minutes|seconds|milliseconds
+    retention_period: 45 minutes
     schemas:
       log:
-        source: 
-          type: string 
-        level: 
+        source:
           type: string
+          max_length: 64
+        stream: 
+          type: string
+          length: 6
         message: 
           type: string
-        request_id: 
-          type: string
-  - name: web
-    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
-    retention_period: 10 seconds
-    schemas:
-      trace:
-        source: 
-          type: string
-        request_id: 
-          type: string
-          length: 36
-        client_ip: 
-          type: string
-        host: 
-          type: string
-        path: 
-          type: string
-        method: 
-          type: string
-          max_length: 6
-        request_dump: 
-          type: string
-        status_code: 
-          type: int16
-        response_dump: 
-          type: string
-        response_time_ms: 
-          type: uint32
-
+        time:
+          type: datetime
+          date_format: 2006-01-02T15:04:05.999999999Z07:00
 
 # # # # # # # # # # # # # # # # # #
 # create a collection of your own #

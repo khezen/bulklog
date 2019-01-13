@@ -1,13 +1,13 @@
 package engine
 
 import (
-	"fmt"
 	"math"
 	"sync"
 	"time"
 
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/log"
 )
 
 // convey documents to consumers through pipes!
@@ -40,7 +40,7 @@ func convey(documents []collection.Document, consumers map[string]consumer.Inter
 						failed = make(map[string]consumer.Interface)
 					}
 					failed[consumerName] = cons
-					fmt.Printf("Digest.%s)\n", err)
+					log.Out().Printf("Digest.%s)\n", err)
 				}
 				wg.Done()
 			}(consumerName, cons)

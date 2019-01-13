@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/log"
+	"github.com/gomodule/redigo/redis"
 )
 
 func redisConvey(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) {
@@ -16,12 +17,12 @@ func redisConvey(red *redis.Pool, pipeKey string, consumers map[string]consumer.
 	if err == errRedisPipeNotFound {
 		err = deleteRedisPipe(red, pipeKey)
 		if err != nil {
-			fmt.Printf("deleteRedisPipe.%s)\n", err)
+			log.Err().Printf("deleteRedisPipe.%s)\n", err)
 		}
 		return
 	}
 	if err != nil {
-		fmt.Printf("getRedisPipe.%s)\n", err)
+		log.Err().Printf("getRedisPipe.%s)\n", err)
 		return
 	}
 	presetRedisConvey(
@@ -46,20 +47,20 @@ func presetRedisConvey(
 	if currentTimeUnixNano > dieAtUnixNano {
 		err = deleteRedisPipe(red, pipeKey)
 		if err != nil {
-			fmt.Printf("deleteRedisPipe.%s)\n", err)
+			log.Err().Printf("deleteRedisPipe.%s)\n", err)
 		} else {
 			return
 		}
 	}
 	documents, err := getRedisPipeDocuments(red, pipeKey)
 	if err != nil {
-		fmt.Printf("getRedisPipeDocuments.%s)\n", err)
+		log.Err().Printf("getRedisPipeDocuments.%s)\n", err)
 		return
 	}
 	if len(documents) == 0 {
 		err = deleteRedisPipe(red, pipeKey)
 		if err != nil {
-			fmt.Printf("deleteRedisPipe.%s)\n", err)
+			log.Err().Printf("deleteRedisPipe.%s)\n", err)
 		}
 		return
 	}
@@ -76,13 +77,13 @@ func presetRedisConvey(
 		latestTryAt = time.Now().UTC()
 		remainingConsumers, err = getRedisPipeConsumers(red, pipeKey, consumers)
 		if err != nil {
-			fmt.Printf("getRedisPipeConsumers.%s)\n", err)
+			log.Err().Printf("getRedisPipeConsumers.%s)\n", err)
 			return
 		}
 		if len(remainingConsumers) == 0 {
 			err = deleteRedisPipe(red, pipeKey)
 			if err != nil {
-				fmt.Printf("deleteRedisPipe.%s)\n", err)
+				log.Err().Printf("deleteRedisPipe.%s)\n", err)
 			}
 			return
 		}
@@ -92,12 +93,12 @@ func presetRedisConvey(
 			go func(consumerName string, cons consumer.Interface) {
 				err = cons.Digest(documents)
 				if err != nil {
-					fmt.Printf("Digest.%s)\n", err)
+					log.Err().Printf("Digest.%s)\n", err)
 					err = nil
 				} else {
 					err = deleteRedisPipeConsumer(red, pipeKey, consumerName)
 					if err != nil {
-						fmt.Printf("deleteRedisPipeConsumer.%s)\n", err)
+						log.Err().Printf("deleteRedisPipeConsumer.%s)\n", err)
 					}
 				}
 				wg.Done()
@@ -108,14 +109,14 @@ func presetRedisConvey(
 		if len(remainingConsumers) == 0 || currentTimeUnixNano > dieAtUnixNano {
 			err = deleteRedisPipe(red, pipeKey)
 			if err != nil {
-				fmt.Printf("deleteRedisPipe.%s)\n", err)
+				log.Err().Printf("deleteRedisPipe.%s)\n", err)
 			} else {
 				return
 			}
 		}
 		iteration, err = getRedisPipeIteration(red, pipeKey)
 		if err != nil {
-			fmt.Printf("getRedisPipeIteration.%s)\n", err)
+			log.Err().Printf("getRedisPipeIteration.%s)\n", err)
 			waitFor = retryPeriod - time.Since(latestTryAt)
 			continue
 		}
@@ -124,14 +125,14 @@ func presetRedisConvey(
 		if nextTryAtUnixNano > dieAtUnixNano {
 			err = deleteRedisPipe(red, pipeKey)
 			if err != nil {
-				fmt.Printf("deleteRedisPipe.%s)\n", err)
+				log.Err().Printf("deleteRedisPipe.%s)\n", err)
 			} else {
 				return
 			}
 		}
 		err = incrRedisPipeIteration(red, pipeKey)
 		if err != nil {
-			fmt.Printf("incrRedisPipeIteration.%s)\n", err)
+			log.Err().Printf("incrRedisPipeIteration.%s)\n", err)
 			return
 		}
 		if waitFor <= 0 {
@@ -165,7 +166,7 @@ func redisConveyAll(red *redis.Pool, pipeKeyPrefix string, consumers map[string]
 			scanResultsI, err = conn.Do("SCAN", cursor, "MATCH", pattern)
 			conn.Close()
 			if err != nil {
-				fmt.Printf("SCAN.%s; Try: %d\n", err, i)
+				log.Err().Printf("SCAN.%s; Try: %d\n", err, i)
 				success = false
 				break
 			}
@@ -173,7 +174,7 @@ func redisConveyAll(red *redis.Pool, pipeKeyPrefix string, consumers map[string]
 			cursorI = scanResults[0]
 			cursor, err = strconv.Atoi(string(cursorI.([]byte)))
 			if err != nil {
-				fmt.Printf("strconv.%s; Try: %d\n", err, i)
+				log.Err().Printf("strconv.%s; Try: %d\n", err, i)
 				success = false
 				break
 			}

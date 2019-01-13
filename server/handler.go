@@ -1,31 +1,49 @@
 package server
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/bulklog/bulklog/collection"
 )
 
 // POST /v1/{collection}/{schema}
-func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
-	urlSplit := strings.Split(strings.Trim(strings.ToLower(r.URL.Path), "/"), "/")
-	if len(urlSplit) != 3 {
-		s.serveError(w, r, ErrPathNotFound)
-		return
-	}
-	if r.Method != http.MethodPost {
-		s.serveError(w, r, ErrWrongMethod)
-	}
-	collectionName := collection.Name(urlSplit[1])
-	schemaName := collection.SchemaName(urlSplit[2])
+func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request, collectionName collection.Name, schemaName collection.SchemaName) {
 	docBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		s.serveError(w, r, err)
 		return
 	}
 	err = s.engine.Collect(collectionName, schemaName, docBytes)
+	if err != nil {
+		s.serveError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+// POST /v1/{collection}/{schemaName}/batch
+func (s *Server) handleCollectBatch(w http.ResponseWriter, r *http.Request, collectionName collection.Name, schemaName collection.SchemaName) {
+	docsBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		s.serveError(w, r, err)
+		return
+	}
+	buf := bytes.NewBuffer(docsBytes)
+	length := bytes.Count(docsBytes, []byte("\n"))
+	docBytesSlice := make([][]byte, 0, length)
+	for {
+		docBytes, err := buf.ReadBytes('\n')
+		if len(docBytes) == 0 {
+			break
+		}
+		docBytesSlice = append(docBytesSlice, docBytes)
+		if err != nil {
+			break
+		}
+	}
+	err = s.engine.CollectBatch(collectionName, schemaName, docBytesSlice...)
 	if err != nil {
 		s.serveError(w, r, err)
 		return

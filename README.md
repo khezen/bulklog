@@ -71,7 +71,7 @@ Default [config.yaml](https://github.com/bulklog/bulklog/raw/master/config.yaml)
 ### Persistence
 
 Peristence is disabled by default in which case data is buffered in memory.
-If enabled, it uses Redis to persist documents buffer. 
+If enabled, it uses Redis(>= 2.4) to persist documents buffer. 
 [Learn how to tune Redis persistence](https://redis.io/topics/persistence) for your requirements. 
 
 ```yaml

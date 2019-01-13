@@ -1,9 +1,6 @@
 package server
 
 import (
-	"fmt"
-	"net/http"
-
 	config "github.com/bulklog/bulklog/config"
 	"github.com/bulklog/bulklog/engine"
 )
@@ -33,14 +30,4 @@ func New(cfg *config.Config, quit chan error) (*Server, error) {
 		quit,
 	}
 	return &srv, nil
-}
-
-// ListenAndServe - Blocks the current goroutine, opens an HTTP port and serves the web REST requests
-func (s *Server) ListenAndServe() {
-	http.HandleFunc("/liveness", s.handleLiveness)
-	http.HandleFunc("/readiness", s.handleReadiness)
-	http.HandleFunc("/v1/", s.handleCollect)
-	endpoint := fmt.Sprintf(":%d", s.port)
-	fmt.Printf("opening bulklog at %v\n", endpoint)
-	s.quit <- http.ListenAndServe(endpoint, nil)
 }

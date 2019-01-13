@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
-	"github.com/google/uuid"
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/config"
 	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/log"
+	"github.com/gomodule/redigo/redis"
+	"github.com/google/uuid"
 )
 
 type redisBuffer struct {
@@ -86,6 +87,26 @@ func (b *redisBuffer) Append(doc *collection.Document) (err error) {
 	return nil
 }
 
+func (b *redisBuffer) AppendBatch(documents ...collection.Document) (err error) {
+	args := make([]interface{}, 0, len(documents)+1)
+	args = append(args, b.bufferKey)
+	for _, doc := range documents {
+		var buf bytes.Buffer
+		err = gob.NewEncoder(&buf).Encode(doc)
+		if err != nil {
+			return
+		}
+		args = append(args, base64.StdEncoding.EncodeToString(buf.Bytes()))
+	}
+	conn := b.redis.Get()
+	defer conn.Close()
+	_, err = conn.Do("RPUSH", args...)
+	if err != nil {
+		return fmt.Errorf("(RPUSH collection.buffer docBase64).%s", err)
+	}
+	return nil
+}
+
 func (b *redisBuffer) Flush() (err error) {
 	var (
 		now     = time.Now().UTC()
@@ -98,7 +119,7 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return fmt.Errorf("(GET collection.flushedAt).%s", err)
 	}
-	if flushedAtStr != "" {
+	if flushedAtStr != nil {
 		b.flushedAt, err = time.Parse(time.RFC3339Nano, string(flushedAtStr.([]byte)))
 		if err != nil {
 			return fmt.Errorf("parseFlushedAtStr.%s", err)
@@ -163,7 +184,7 @@ func (b *redisBuffer) Flusher() func() {
 			if waitFor <= 0 {
 				err := b.Flush()
 				if err != nil {
-					fmt.Printf("Flush.%s)\n", err)
+					log.Err().Printf("Flush.%s)\n", err)
 					timer = time.NewTimer(time.Second)
 					<-timer.C
 				}
@@ -176,7 +197,7 @@ func (b *redisBuffer) Flusher() func() {
 			case <-timer.C:
 				err = b.Flush()
 				if err != nil {
-					fmt.Printf("Flush.%s)\n", err)
+					log.Err().Printf("Flush.%s)\n", err)
 				}
 				break
 			}

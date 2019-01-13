@@ -82,3 +82,42 @@ func (e *engine) Dispatch(document *collection.Document) (err error) {
 	}
 	return nil
 }
+
+// Collect document
+func (e *engine) CollectBatch(collectionName collection.Name, schemaName collection.SchemaName, docBytesSlice ...[]byte) (err error) {
+	_, ok := e.schemas[collectionName]
+	if !ok {
+		return ErrNotFound
+	}
+	if _, ok := e.schemas[collectionName][schemaName]; !ok {
+		return ErrNotFound
+	}
+	length := len(docBytesSlice)
+	if length > 0 {
+		documents := make([]collection.Document, 0, length)
+		var docBytes []byte
+		for _, docBytes = range docBytesSlice {
+			document, err := collection.NewDocument(collectionName, schemaName, docBytes)
+			if err != nil {
+				return fmt.Errorf("collection.NewDocument.%s", err)
+			}
+			documents = append(documents, *document)
+		}
+		err = e.DispatchBatch(documents...)
+		if err != nil {
+			return fmt.Errorf("Dispatch.%s", err)
+		}
+	}
+	return nil
+}
+
+// Dispatch takes incoming message into Elasticsearch
+func (e *engine) DispatchBatch(documents ...collection.Document) (err error) {
+	if len(documents) > 0 {
+		err = e.buffers[documents[0].CollectionName].AppendBatch(documents...)
+		if err != nil {
+			return fmt.Errorf("Append.%s", err)
+		}
+	}
+	return nil
+}

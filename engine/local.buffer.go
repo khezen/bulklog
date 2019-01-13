@@ -1,12 +1,12 @@
 package engine
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/log"
 )
 
 const bufferLimit = 10000
@@ -41,6 +41,14 @@ func (b *buffer) Append(d *collection.Document) error {
 	return nil
 }
 
+// Append to buffer
+func (b *buffer) AppendBatch(documents ...collection.Document) error {
+	b.Lock()
+	b.documents = append(b.documents, documents...)
+	b.Unlock()
+	return nil
+}
+
 // Flush the buffer
 func (b *buffer) Flush() (bubbledErr error) {
 	b.Lock()
@@ -68,7 +76,7 @@ func (b *buffer) Flusher() func() {
 			case <-ticker.C:
 				err = b.Flush()
 				if err != nil {
-					fmt.Printf("Flush.%s)\n", err)
+					log.Out().Printf("Flush.%s)\n", err)
 				}
 				break
 			}

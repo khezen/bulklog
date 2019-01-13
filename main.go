@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/bulklog/bulklog/config"
+	"github.com/bulklog/bulklog/log"
 	"github.com/bulklog/bulklog/server"
 )
 
@@ -33,7 +33,7 @@ func main() {
 		serv, err = server.New(cfg, quit)
 		if err != nil {
 			if i < maxTries {
-				fmt.Println(err)
+				log.Err().Println(err)
 				timer = time.NewTimer(retryPeriod)
 				<-timer.C
 				i++

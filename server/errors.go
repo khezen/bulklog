@@ -2,12 +2,12 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/engine"
+	"github.com/bulklog/bulklog/log"
 )
 
 var (
@@ -32,7 +32,7 @@ func HTTPStatusCode(err error) int {
 }
 
 func (s *Server) serveError(w http.ResponseWriter, r *http.Request, err error) {
-	fmt.Printf("%v", err)
+	log.Err().Println(err)
 	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	statusCode := HTTPStatusCode(err)
