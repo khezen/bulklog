@@ -133,7 +133,7 @@ func (b *redisBuffer) Flush() (err error) {
 		return fmt.Errorf("(LLEN bufferKey).%s", err)
 	}
 	if bufferLen == 0 {
-		_, err = conn.Do("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
+		_, err = conn.Do("SET", b.timeKey, now.Format(time.RFC3339Nano))
 		if err != nil {
 			return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
 		}
@@ -158,7 +158,7 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return fmt.Errorf("flushBuffer2RedisPipe.%s", err)
 	}
-	err = conn.Send("SET", b.timeKey, now.Format(time.RFC3339Nano), 0)
+	err = conn.Send("SET", b.timeKey, now.Format(time.RFC3339Nano))
 	if err != nil {
 		return fmt.Errorf("(SET collection.flushedAt %s).%s", now.Format(time.RFC3339Nano), err)
 	}

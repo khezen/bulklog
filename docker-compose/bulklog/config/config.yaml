@@ -26,7 +26,7 @@ output:
 
 collections:
   - name: logs
-    flush_period: 60 seconds # hours|minutes|seconds|milliseconds
+    flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
     schemas:
       log:

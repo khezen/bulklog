@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bulklog/bulklog/log"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -23,6 +24,14 @@ func getRedisPipe(red *redis.Pool, pipeKey string) (
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("MULTI.%s", err)
 	}
+	defer func() {
+		if err != nil {
+			_, err = conn.Do("DISCRD")
+			if err != nil {
+				log.Err().Printf("DISCARD.%s\n", err)
+			}
+		}
+	}()
 	err = conn.Send("HGET", pipeKey, "retryPeriodNano")
 	if err != nil {
 		return time.Time{}, 0, 0, fmt.Errorf("(HGET pipeKey retryPeriodNano).%s", err)

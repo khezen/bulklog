@@ -43,7 +43,7 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog bulklog/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.8`, `1.0`, `1`, `stable`
+* `1.0.9`, `1.0`, `1`, `stable`
 
 #### ENV
 
@@ -190,6 +190,25 @@ Content-Type: application/json
   "message": "divizion by zero",
   "time": "2018-11-15T14:12:12Z"
 }
+
+### push documents in batches
+
+```http
+POST /v1/{collectionName}/{schemaName}/batch HTTP/1.1
+Content-Type: application/json
+{...}
+{...}
+
+HTTP/1.1 200 OK
+```
+
+example:
+
+```http
+POST /v1/logs/log/batch HTTP/1.1
+Content-Type: application/json
+{"source":"service1","stream": "stderr","message": "divizion by zero","time" : "2019-01-13T19:30:12"}
+{"source":"service1","stream": "stdout","message": "good","time" : "2019-01-13T19:35:12"}
 
 HTTP/1.1 200 OK
 ```
