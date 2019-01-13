@@ -30,18 +30,18 @@ collections:
     retention_period: 45 minutes
     schemas:
       log:
-        source: 
-          type: string 
-        level: 
+        source:
+          type: string
+        stream: 
           type: string
         message: 
           type: string
+        time:
+          type: datetime
+          date_format: 2006-01-02T15:04:05.999999999Z07:00
         transaction_id: 
           type: string
           length: 36
-        occured_at:
-          type: datetime
-          date_format: 2006-01-02T15:04:05.999999999Z07:00
 
 # # # # # # # # # # # # # # # # # #
 # create a collection of your own #

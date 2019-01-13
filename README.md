@@ -128,16 +128,16 @@ collections:
       log:
         source: 
           type: string 
-        level: 
+        stream: 
           type: string
         message: 
           type: string
+        time:
+          type: datetime
+          date_format: 2006-01-02T15:04:05.999999999Z07:00
         transaction_id: 
           type: string
           length: 36
-        occured_at:
-          type: datetime
-          date_format: 2006-01-02T15:04:05.999999999Z07:00
 ```
 
 Even in the case above, *bulklog* remains schema free enabling workloads to decorate logs with additional information.
@@ -187,10 +187,10 @@ POST /v1/logs/log HTTP/1.1
 Content-Type: application/json
 {
   "source":"service1",
-  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
-  "level": "Fatal",
+  "stream": "stderr",
   "message": "divizion by zero",
-  "occured_at": "2018-11-15T14:12:12Z"
+  "time": "2018-11-15T14:12:12Z"
+  "transaction_id":"cd603a72-f74c-4f2c-afeb-bc29f788db78",
 }
 
 HTTP/1.1 200 OK
