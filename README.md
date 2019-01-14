@@ -132,7 +132,7 @@ collections:
         stream: 
           type: string
           length: 6
-        message: 
+        event: 
           type: string
         time:
           type: datetime
@@ -187,7 +187,7 @@ Content-Type: application/json
 {
   "source":"service1",
   "stream": "stderr",
-  "message": "divizion by zero",
+  "event": "divizion by zero",
   "time": "2018-11-15T14:12:12Z"
 }
 
@@ -207,8 +207,8 @@ example:
 ```http
 POST /v1/logs/log/batch HTTP/1.1
 Content-Type: application/json
-{"source":"service1","stream": "stderr","message": "divizion by zero","time" : "2019-01-13T19:30:12"}
-{"source":"service1","stream": "stdout","message": "good","time" : "2019-01-13T19:35:12"}
+{"source":"service1","stream": "stderr","event": "divizion by zero","time" : "2019-01-13T19:30:12"}
+{"source":"service1","stream": "stdout","event": "successfully processed","time" : "2019-01-13T19:35:12"}
 
 HTTP/1.1 200 OK
 ```
