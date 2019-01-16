@@ -79,9 +79,9 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 	if res.StatusCode > 300 {
 		resBody, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			return fmt.Errorf("elasticsearch: %b", resBody)
+			return fmt.Errorf("ioutil.ReadAll.%s", err)
 		}
-		return fmt.Errorf("elasticsearch: %s", res.Status)
+		return fmt.Errorf("elasticsearch: %s : %b", res.Status, resBody)
 	}
 	return nil
 }
