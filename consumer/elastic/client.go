@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/bulklog/bulklog/auth"
 	"github.com/bulklog/bulklog/collection"
@@ -22,6 +23,7 @@ type Elastic struct {
 	signer                         auth.Signer
 	indeSettings                   IndexSettings
 	bulkEndpoint, templateEndpoint string
+	httpcli                        http.Client
 }
 
 // New returns a elasticsearch as a consumer
@@ -50,6 +52,13 @@ func New(cfg Config) *Elastic {
 		},
 		bulkEndpoint,
 		createTemplateEndpoint,
+		http.Client{
+			Transport: &http.Transport{
+				MaxIdleConns:       10,
+				IdleConnTimeout:    30 * time.Second,
+				DisableCompression: true,
+			},
+		},
 	}
 }
 
@@ -72,7 +81,7 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 	if err != nil {
 		return fmt.Errorf("Sign.%s", err)
 	}
-	res, err := httpClient.Do(req)
+	res, err := c.httpcli.Do(req)
 	if err != nil {
 		return fmt.Errorf("httpClient.Do.%s", err)
 	}
@@ -104,7 +113,7 @@ func (c *Elastic) Ensure(collection *collection.Collection) error {
 	if err != nil {
 		return fmt.Errorf("Sign.%s", err)
 	}
-	res, err := httpClient.Do(req)
+	res, err := c.httpcli.Do(req)
 	if err != nil {
 		return fmt.Errorf("httpClient.Do.%s", err)
 	}
