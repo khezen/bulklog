@@ -103,9 +103,9 @@ func deleteRedisPipe(red *redis.Pool, pipeKey string) (err error) {
 	if err != nil {
 		return fmt.Errorf("DEL pipeKey).%s", err)
 	}
-	err = deleteRedisPipeConsumers(conn, pipeKey)
+	err = deleteRedisPipeoutputs(conn, pipeKey)
 	if err != nil {
-		return fmt.Errorf("deleteRedisPipeConsumers.%s", err)
+		return fmt.Errorf("deleteRedisPipeoutputs.%s", err)
 	}
 	err = deleteRedisPipeDocuments(conn, pipeKey)
 	if err != nil {

@@ -2,14 +2,14 @@ package config
 
 import (
 	"github.com/bulklog/bulklog/collection"
-	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/output"
 )
 
 // Config contains all configuration for the logger
 type Config struct {
 	Port        int                 `yaml:"port"`
 	Persistence Persistence         `yaml:"persistence"`
-	Output      consumer.Config     `yaml:"output"`
+	Output      output.Config       `yaml:"output"`
 	Collections []collection.Config `yaml:"collections,flow"`
 }
 

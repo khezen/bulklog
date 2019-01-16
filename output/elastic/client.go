@@ -26,7 +26,7 @@ type Elastic struct {
 	httpcli                        http.Client
 }
 
-// New returns a elasticsearch as a consumer
+// New returns a elasticsearch as a output
 func New(cfg Config) *Elastic {
 	if cfg.Scheme == "" {
 		cfg.Scheme = "http"

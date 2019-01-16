@@ -24,9 +24,9 @@ A Schema provides declarative informations about how *bulklog* should process da
 
 A collection is a set of schemas.
 
-### Consumer
+### Output
 
-*bulklog* outputs JSON docuemts to consumers such as Elasticsearch, MongoDB, etc...
+*bulklog* outputs JSON docuemts to destinations such as Elasticsearch, MongoDB, etc...
 
 ---
 
@@ -43,7 +43,7 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog bulklog/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.9`, `1.0`, `1`, `stable`
+* `1.0.10`, `1.0`, `1`, `stable`
 
 #### ENV
 
@@ -87,7 +87,7 @@ persistence:
 
 ### Output
 
-provides declarative information about consumers which *bulklog* output data to.
+provides declarative information about *bulklog* output.
 
 ```yaml
 output:
@@ -117,7 +117,7 @@ collections:
       log: {}
 ```
 
-*bulklog* is schema free but we encourage you to provide some base structure since it might enbale consumers to store data more efficiently.
+*bulklog* is schema free but we encourage you to provide some base structure since it might enbale output destination to process data more efficiently.
 
 ```yaml
 collections:
@@ -139,16 +139,16 @@ collections:
           date_format: 2006-01-02T15:04:05.999999999Z07:00
 ```
 
-Even in the case above, *bulklog* remains schema free enabling workloads to decorate logs with additional information.
+Even in the case above, *bulklog* remains schema free enabling log decoration with additional field.
 
 #### collection
 
 * **name**: `{collection name}`
 * **flush_period**: `{duration}`
-  * flush buffer and output data to consumers every `{duration}`
+  * flush buffer to output every `{duration}`
 * **retention_period**: `{duration}`
-  * if a consumer is unavailable, **retention_period** set how long *bulklog* tries to output data to this consumer
-  * if the consumer is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other consumers.
+  * if an output is unavailable, **retention_period** set how long *bulklog* tries to output data to this output
+  * if the output is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other outputs.
 * **schemas**: `{map of schema configurations by schema name}`
 
 #### schema
@@ -251,7 +251,7 @@ HTTP/1.1 200 OK
   * **max_length**: string maximum length
 
 * **datetime** : `1970-01-01T00:00:00.000000000Z` (example)
-  * *bulklog* doesn't check the date format. Most consumers accept any even if it defers from the configured one
+  * *bulklog* doesn't check the date format. Most outputs accept any even if it defers from the configured one
   * **date_format**: date format string
     * `Mon Jan _2 15:04:05 2006`
     * `Mon Jan _2 15:04:05 MST 2006`

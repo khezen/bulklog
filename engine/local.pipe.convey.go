@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/bulklog/bulklog/collection"
-	"github.com/bulklog/bulklog/consumer"
 	"github.com/bulklog/bulklog/log"
+	"github.com/bulklog/bulklog/output"
 )
 
-// convey documents to consumers through pipes!
-func convey(documents []collection.Document, consumers map[string]consumer.Interface, retryPeriod, retentionPeriod time.Duration) {
+// convey documents to outputs through pipes!
+func convey(documents []collection.Document, outputs map[string]output.Interface, retryPeriod, retentionPeriod time.Duration) {
 	var (
 		startedAt           = time.Now().UTC()
 		dieAt               = startedAt.Add(retentionPeriod)
@@ -19,37 +19,37 @@ func convey(documents []collection.Document, consumers map[string]consumer.Inter
 		currentTimeUnixNano int64
 		nextTryAtUnixNano   int64
 		i                   int
-		failed              map[string]consumer.Interface
+		failed              map[string]output.Interface
 		err                 error
 		timer               *time.Timer
 		latestTryAt         time.Time
 		waitFor             time.Duration
-		cons                consumer.Interface
-		consumerName        string
+		cons                output.Interface
+		outputName          string
 		wg                  sync.WaitGroup
 	)
 	for {
 		latestTryAt = time.Now().UTC()
 		wg = sync.WaitGroup{}
-		for consumerName, cons = range consumers {
+		for outputName, cons = range outputs {
 			wg.Add(1)
-			go func(consumerName string, cons consumer.Interface) {
+			go func(outputName string, cons output.Interface) {
 				err = cons.Digest(documents)
 				if err != nil {
 					if failed == nil {
-						failed = make(map[string]consumer.Interface)
+						failed = make(map[string]output.Interface)
 					}
-					failed[consumerName] = cons
+					failed[outputName] = cons
 					log.Err().Printf("Digest.%s)\n", err)
 				}
 				wg.Done()
-			}(consumerName, cons)
+			}(outputName, cons)
 		}
 		wg.Wait()
 		if len(failed) == 0 || time.Since(startedAt) > retentionPeriod {
 			return
 		}
-		consumers = failed
+		outputs = failed
 		waitFor = retryPeriod*time.Duration(math.Pow(2, float64(i))) - time.Since(latestTryAt)
 		currentTimeUnixNano = time.Now().UTC().UnixNano()
 		nextTryAtUnixNano = currentTimeUnixNano + int64(waitFor)

@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/bulklog/bulklog/collection"
-	"github.com/bulklog/bulklog/consumer"
 	"github.com/bulklog/bulklog/log"
+	"github.com/bulklog/bulklog/output"
 )
 
 const bufferLimit = 10000
@@ -16,17 +16,17 @@ const bufferLimit = 10000
 type buffer struct {
 	sync.Mutex
 	collection *collection.Collection
-	consumers  map[string]consumer.Interface
+	outputs    map[string]output.Interface
 	close      chan struct{}
 	documents  []collection.Document
 }
 
 // DefaultBuffer creates a new buffer
-func DefaultBuffer(collec *collection.Collection, consumers map[string]consumer.Interface) Buffer {
+func DefaultBuffer(collec *collection.Collection, outputs map[string]output.Interface) Buffer {
 	buffer := &buffer{
 		Mutex:      sync.Mutex{},
 		collection: collec,
-		consumers:  consumers,
+		outputs:    outputs,
 		close:      make(chan struct{}),
 		documents:  make([]collection.Document, 0),
 	}
@@ -57,7 +57,7 @@ func (b *buffer) Flush() (bubbledErr error) {
 	if documentsLen == 0 {
 		return nil
 	}
-	go convey(b.documents, b.consumers, b.collection.FlushPeriod, b.collection.RetentionPeriod)
+	go convey(b.documents, b.outputs, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	b.documents = make([]collection.Document, 0, bufferLimit)
 	return nil
 }

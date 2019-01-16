@@ -3,69 +3,69 @@ package engine
 import (
 	"fmt"
 
+	"github.com/bulklog/bulklog/output"
 	"github.com/gomodule/redigo/redis"
-	"github.com/bulklog/bulklog/consumer"
 )
 
-func getRedisPipeConsumers(red *redis.Pool, pipeKey string, consumers map[string]consumer.Interface) (remainingConsumers map[string]consumer.Interface, err error) {
+func getRedisPipeoutputs(red *redis.Pool, pipeKey string, outputs map[string]output.Interface) (remainingoutputs map[string]output.Interface, err error) {
 	conn := red.Get()
 	defer conn.Close()
-	key := fmt.Sprintf("%s.consumers", pipeKey)
-	remainingConsumersLen, err := conn.Do("LLen", key)
+	key := fmt.Sprintf("%s.outputs", pipeKey)
+	remainingoutputsLen, err := conn.Do("LLen", key)
 	if err != nil {
-		return nil, fmt.Errorf("(LLEN pipeKey.consumers).%s", err)
+		return nil, fmt.Errorf("(LLEN pipeKey.outputs).%s", err)
 	}
-	if remainingConsumersLen == 0 {
-		return map[string]consumer.Interface{}, nil
+	if remainingoutputsLen == 0 {
+		return map[string]output.Interface{}, nil
 	}
-	remainingConsumerNamesI, err := conn.Do("LRANGE", key, 0, remainingConsumersLen)
+	remainingoutputNamesI, err := conn.Do("LRANGE", key, 0, remainingoutputsLen)
 	if err != nil {
-		return nil, fmt.Errorf("(LRANGE pipeKey.consumers).%s", err)
+		return nil, fmt.Errorf("(LRANGE pipeKey.outputs).%s", err)
 	}
-	remainingConsumerNames := remainingConsumerNamesI.([]interface{})
-	remainingConsumers = make(map[string]consumer.Interface)
+	remainingoutputNames := remainingoutputNamesI.([]interface{})
+	remainingoutputs = make(map[string]output.Interface)
 	var (
-		consumerNameI interface{}
-		consumerName  string
+		outputNameI interface{}
+		outputName  string
 	)
-	for _, consumerNameI = range remainingConsumerNames {
-		consumerName = string(consumerNameI.([]byte))
-		if cons, ok := consumers[consumerName]; ok {
-			remainingConsumers[consumerName] = cons
+	for _, outputNameI = range remainingoutputNames {
+		outputName = string(outputNameI.([]byte))
+		if cons, ok := outputs[outputName]; ok {
+			remainingoutputs[outputName] = cons
 		}
 	}
-	return remainingConsumers, nil
+	return remainingoutputs, nil
 }
 
-func addRedisPipeConsumers(conn redis.Conn, pipeKey string, consumers map[string]consumer.Interface) (err error) {
-	key := fmt.Sprintf("%s.consumers", pipeKey)
-	args := make([]interface{}, 0, len(consumers)+1)
+func addRedisPipeoutputs(conn redis.Conn, pipeKey string, outputs map[string]output.Interface) (err error) {
+	key := fmt.Sprintf("%s.outputs", pipeKey)
+	args := make([]interface{}, 0, len(outputs)+1)
 	args = append(args, key)
-	var consumerName string
-	for consumerName = range consumers {
-		args = append(args, consumerName)
+	var outputName string
+	for outputName = range outputs {
+		args = append(args, outputName)
 	}
 	err = conn.Send("RPUSH", args...)
 	if err != nil {
-		return fmt.Errorf("(RPUSH pipeKey.consumers consumerNames...).%s", err)
+		return fmt.Errorf("(RPUSH pipeKey.outputs outputNames...).%s", err)
 	}
 	return
 }
 
-func deleteRedisPipeConsumer(red *redis.Pool, pipeKey, consumerName string) (err error) {
+func deleteRedisPipeoutput(red *redis.Pool, pipeKey, outputName string) (err error) {
 	conn := red.Get()
 	defer conn.Close()
-	_, err = conn.Do("LREM", fmt.Sprintf("%s.consumers", pipeKey), 0, consumerName)
+	_, err = conn.Do("LREM", fmt.Sprintf("%s.outputs", pipeKey), 0, outputName)
 	if err != nil {
-		return fmt.Errorf("(LREM pipeKey.consumers consumerName).%s", err)
+		return fmt.Errorf("(LREM pipeKey.outputs outputName).%s", err)
 	}
 	return nil
 }
 
-func deleteRedisPipeConsumers(conn redis.Conn, pipeKey string) (err error) {
-	err = conn.Send("DEL", fmt.Sprintf("%s.consumers", pipeKey))
+func deleteRedisPipeoutputs(conn redis.Conn, pipeKey string) (err error) {
+	err = conn.Send("DEL", fmt.Sprintf("%s.outputs", pipeKey))
 	if err != nil {
-		return fmt.Errorf("(DEL pipeKey.consumers).%s", err)
+		return fmt.Errorf("(DEL pipeKey.outputs).%s", err)
 	}
 	return nil
 }

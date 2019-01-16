@@ -5,7 +5,7 @@ import (
 
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/config"
-	"github.com/bulklog/bulklog/consumer"
+	"github.com/bulklog/bulklog/output"
 )
 
 // Indexer indexes document in bulk request to elasticsearch
@@ -16,9 +16,9 @@ type engine struct {
 
 // New - Create new service for serving web REST requests
 func New(cfg *config.Config) (Engine, error) {
-	consumers, err := consumer.NewConsumers(&cfg.Output)
+	outputs, err := output.NewOutputs(&cfg.Output)
 	if err != nil {
-		return nil, fmt.Errorf("consumer.NewConsumers.%s", err)
+		return nil, fmt.Errorf("output.Newoutputs.%s", err)
 	}
 	schemas := make(map[collection.Name]map[collection.SchemaName]struct{})
 	buffers := make(map[collection.Name]Buffer)
@@ -27,7 +27,7 @@ func New(cfg *config.Config) (Engine, error) {
 		if err != nil {
 			return nil, fmt.Errorf("collection.New.%s", err)
 		}
-		for _, cons := range consumers {
+		for _, cons := range outputs {
 			err = cons.Ensure(collec)
 			if err != nil {
 				return nil, fmt.Errorf("Ensure.%s", err)
@@ -39,9 +39,9 @@ func New(cfg *config.Config) (Engine, error) {
 		}
 		var buffer Buffer
 		if cfg.Persistence.Enabled {
-			buffer = RedisBuffer(collec, &cfg.Persistence.Redis, consumers)
+			buffer = RedisBuffer(collec, &cfg.Persistence.Redis, outputs)
 		} else {
-			buffer = DefaultBuffer(collec, consumers)
+			buffer = DefaultBuffer(collec, outputs)
 		}
 		buffers[collec.Name] = buffer
 		if collec.FlushPeriod > 0 {

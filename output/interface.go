@@ -1,4 +1,4 @@
-package consumer
+package output
 
 import (
 	"github.com/bulklog/bulklog/collection"

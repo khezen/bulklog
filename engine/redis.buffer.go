@@ -9,8 +9,8 @@ import (
 
 	"github.com/bulklog/bulklog/collection"
 	"github.com/bulklog/bulklog/config"
-	"github.com/bulklog/bulklog/consumer"
 	"github.com/bulklog/bulklog/log"
+	"github.com/bulklog/bulklog/output"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 )
@@ -18,7 +18,7 @@ import (
 type redisBuffer struct {
 	redis         *redis.Pool
 	collection    *collection.Collection
-	consumers     map[string]consumer.Interface
+	outputs       map[string]output.Interface
 	bufferKey     string
 	timeKey       string
 	pipeKeyPrefix string
@@ -27,7 +27,7 @@ type redisBuffer struct {
 }
 
 // RedisBuffer -
-func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, consumers map[string]consumer.Interface) Buffer {
+func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, outputs map[string]output.Interface) Buffer {
 	rbuffer := &redisBuffer{
 		redis: &redis.Pool{
 			MaxActive:   redisCfg.MaxConn,
@@ -60,14 +60,14 @@ func RedisBuffer(collec *collection.Collection, redisCfg *config.Redis, consumer
 			},
 		},
 		collection:    collec,
-		consumers:     consumers,
+		outputs:       outputs,
 		bufferKey:     fmt.Sprintf("bulklog.%s.buffer", collec.Name),
 		timeKey:       fmt.Sprintf("bulklog.%s.flushedAt", collec.Name),
 		pipeKeyPrefix: fmt.Sprintf("bulklog.%s.pipes", collec.Name),
 		flushedAt:     time.Now().UTC(),
 		close:         make(chan struct{}),
 	}
-	redisConveyAll(rbuffer.redis, rbuffer.pipeKeyPrefix, rbuffer.consumers)
+	redisConveyAll(rbuffer.redis, rbuffer.pipeKeyPrefix, rbuffer.outputs)
 	return rbuffer
 }
 
@@ -150,9 +150,9 @@ func (b *redisBuffer) Flush() (err error) {
 	if err != nil {
 		return fmt.Errorf("newRedisPipe.%s", err)
 	}
-	err = addRedisPipeConsumers(conn, pipeKey, b.consumers)
+	err = addRedisPipeoutputs(conn, pipeKey, b.outputs)
 	if err != nil {
-		return fmt.Errorf("addRedisPipeConsumers.%s", err)
+		return fmt.Errorf("addRedisPipeoutputs.%s", err)
 	}
 	err = flushBuffer2RedisPipe(conn, b.bufferKey, pipeKey)
 	if err != nil {
@@ -167,7 +167,7 @@ func (b *redisBuffer) Flush() (err error) {
 		return fmt.Errorf("EXEC.%s", err)
 	}
 	b.flushedAt = now
-	go presetRedisConvey(b.redis, pipeKey, b.consumers, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
+	go presetRedisConvey(b.redis, pipeKey, b.outputs, now, b.collection.FlushPeriod, b.collection.RetentionPeriod)
 	return nil
 }
 
