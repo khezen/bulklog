@@ -36,7 +36,7 @@ collections:
         stream: 
           type: string
           length: 6
-        message: 
+        event: 
           type: string
         time:
           type: datetime
