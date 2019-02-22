@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/bulklog/bulklog/collection"
-	"github.com/bulklog/bulklog/output"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/output"
 )
 
 // Config contains all configuration for the logger

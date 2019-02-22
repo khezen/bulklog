@@ -1,8 +1,8 @@
 package server
 
 import (
-	config "github.com/bulklog/bulklog/config"
-	"github.com/bulklog/bulklog/engine"
+	config "github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/engine"
 )
 
 const defaultPort = 5017

@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bulklog/bulklog/collection"
-	"github.com/bulklog/bulklog/config"
-	"github.com/bulklog/bulklog/log"
-	"github.com/bulklog/bulklog/output"
+	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/config"
+	"github.com/khezen/bulklog/log"
+	"github.com/khezen/bulklog/output"
 	"github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 )

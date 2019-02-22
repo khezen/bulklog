@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 
-	"github.com/bulklog/bulklog/output"
+	"github.com/khezen/bulklog/output"
 	"github.com/gomodule/redigo/redis"
 )
 

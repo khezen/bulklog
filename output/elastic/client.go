@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bulklog/bulklog/auth"
-	"github.com/bulklog/bulklog/collection"
+	"github.com/khezen/bulklog/auth"
+	"github.com/khezen/bulklog/collection"
 )
 
 var (

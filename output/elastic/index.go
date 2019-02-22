@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bulklog/bulklog/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
 // Index - elasticsearch index definition

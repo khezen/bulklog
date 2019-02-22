@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bulklog/bulklog/log"
-	"github.com/bulklog/bulklog/output"
+	"github.com/khezen/bulklog/log"
+	"github.com/khezen/bulklog/output"
 	"github.com/gomodule/redigo/redis"
 )
 

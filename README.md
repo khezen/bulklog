@@ -3,7 +3,7 @@
 
 Collects, buffers, and outputs logs across multiple sources and destinations.
 
-![icon.png](https://github.com/bulklog/bulklog/raw/master/icon.png)
+![icon.png](https://github.com/khezen/bulklog/raw/master/icon.png)
 
 *bulklog* is written in go and requires little resource.
 
@@ -34,10 +34,10 @@ A collection is a set of schemas.
 
 ### Docker
 
-[![bulklog/bulklog](https://images.microbadger.com/badges/image/bulklog/bulklog.svg)](https://hub.docker.com/r/bulklog/bulklog/)
+[![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://hub.docker.com/r/khezen/bulklog/)
 
 ```bash
-docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog bulklog/bulklog:stable
+docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 ```
 
 #### Supported tags
@@ -58,15 +58,15 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog bulklog/bulklog:stable
 Deploy bulklog to a kubernetes cluster using Helm.
 
 ```bash
-helm repo add bulklog https://bulklog.github.com/charts
-helm install bulklog/bulklog --name bulklog
+helm repo add khezen https://khezen.github.com/charts
+helm install khezen/bulklog --name bulklog
 ```
 
 ---
 
 ## Config
 
-Default [config.yaml](https://github.com/bulklog/bulklog/raw/master/config.yaml).
+Default [config.yaml](https://github.com/khezen/bulklog/raw/master/config.yaml).
 
 ### Persistence
 
@@ -277,12 +277,12 @@ HTTP/1.1 200 OK
 
 ## Issues
 
-If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/bulklog/bulklog/issues).
+If you have any problems or questions, please ask for help through a [GitHub issue](https://github.com/khezen/bulklog/issues).
 
 ## Contributions
 
-Help is always welcome! For example, documentation (like the text you are reading now) can always use improvement. There's always code that can be improved. If you ever see something you think should be fixed, you should own it. If you have no idea what to start on, you can browse the issues labeled with [help wanted](https://github.com/bulklog/bulklog/labels/help%20wanted).
+Help is always welcome! For example, documentation (like the text you are reading now) can always use improvement. There's always code that can be improved. If you ever see something you think should be fixed, you should own it. If you have no idea what to start on, you can browse the issues labeled with [help wanted](https://github.com/khezen/bulklog/labels/help%20wanted).
 
 As a potential contributor, your changes and ideas are welcome at any hour of the day or night, weekdays, weekends, and holidays. Please do not ever hesitate to ask a question or send a pull request.
 
-[Code of conduct](https://github.com/bulklog/bulklog/blob/master/CODE_OF_CONDUCT.md).
+[Code of conduct](https://github.com/khezen/bulklog/blob/master/CODE_OF_CONDUCT.md).

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bulklog/bulklog/log"
+	"github.com/khezen/bulklog/log"
 	"github.com/gomodule/redigo/redis"
 )
 

@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/bulklog/bulklog/collection"
+	"github.com/khezen/bulklog/collection"
 )
 
 // Interface interface to send msg to recipents

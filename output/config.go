@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/bulklog/bulklog/output/elastic"
+	"github.com/khezen/bulklog/output/elastic"
 )
 
 // Config -
