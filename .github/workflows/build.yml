@@ -28,7 +28,7 @@ jobs:
       run: |
         cd /go/src/$GITHUB_REPOSITORY
         echo "" > coverage.txt
-        sh test.sh
+        sh test/test.sh
     
     - name: code coverage
       if: github.ref == 'refs/heads/master'
