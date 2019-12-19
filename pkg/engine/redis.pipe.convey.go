@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/internal/log"
-	"github.com/khezen/bulklog/internal/output"
+	"github.com/khezen/bulklog/pkg/log"
+	"github.com/khezen/bulklog/pkg/output"
 )
 
 func redisConvey(red *redis.Pool, pipeKey string, outputs map[string]output.Interface) {

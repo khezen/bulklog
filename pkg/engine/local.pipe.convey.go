@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/khezen/bulklog/internal/collection"
-	"github.com/khezen/bulklog/internal/log"
-	"github.com/khezen/bulklog/internal/output"
+	"github.com/khezen/bulklog/pkg/collection"
+	"github.com/khezen/bulklog/pkg/log"
+	"github.com/khezen/bulklog/pkg/output"
 )
 
 // convey documents to outputs through pipes!

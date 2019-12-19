@@ -1,6 +1,6 @@
 package output
 
-import "github.com/khezen/bulklog/internal/collection"
+import "github.com/khezen/bulklog/pkg/collection"
 
 // Interface interface to send msg to recipents
 type Interface interface {

@@ -3,9 +3,9 @@ package engine
 import (
 	"fmt"
 
-	"github.com/khezen/bulklog/internal/collection"
-	"github.com/khezen/bulklog/internal/config"
-	"github.com/khezen/bulklog/internal/output"
+	"github.com/khezen/bulklog/pkg/collection"
+	"github.com/khezen/bulklog/pkg/config"
+	"github.com/khezen/bulklog/pkg/output"
 )
 
 // Indexer indexes document in bulk request to elasticsearch

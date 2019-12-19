@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/khezen/bulklog/internal/log"
+	"github.com/khezen/bulklog/pkg/log"
 )
 
 var (

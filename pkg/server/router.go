@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/khezen/bulklog/internal/collection"
-	"github.com/khezen/bulklog/internal/log"
+	"github.com/khezen/bulklog/pkg/collection"
+	"github.com/khezen/bulklog/pkg/log"
 )
 
 // ListenAndServe - Blocks the current goroutine, opens an HTTP port and serves the web REST requests
