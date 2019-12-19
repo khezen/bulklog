@@ -14,12 +14,13 @@
     "aws/signer/v4",
     "internal/ini",
     "internal/sdkio",
+    "internal/sdkmath",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/rest"
   ]
-  revision = "aabf189db35ba7eb5a35afe6d681fc0f70954fca"
-  version = "v1.16.18"
+  revision = "a25ea3950893fa501b1fc9619eb1b3546c7ad3a0"
+  version = "v1.26.5"
 
 [[projects]]
   name = "github.com/gomodule/redigo"
@@ -33,8 +34,8 @@
 [[projects]]
   name = "github.com/google/uuid"
   packages = ["."]
-  revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
-  version = "v1.1.0"
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -44,12 +45,12 @@
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
+  version = "v2.2.7"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4d6da97b7125a12c9c15bf6d4814fb8f639f8837fbe23e635d49667326f64ab1"
+  inputs-digest = "45d49e3e53bec49bb9d7a0905b745024aa0366e20b7b93ba289f017eb95781cc"
   solver-name = "gps-cdcl"
   solver-version = 1
