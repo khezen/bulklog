@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/khezen/bulklog/collection"
+	"github.com/khezen/bulklog/internal/collection"
 )
 
 // POST /v1/{collection}/{schema}

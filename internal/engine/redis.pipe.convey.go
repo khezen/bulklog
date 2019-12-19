@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/khezen/bulklog/log"
-	"github.com/khezen/bulklog/output"
 	"github.com/gomodule/redigo/redis"
+	"github.com/khezen/bulklog/internal/log"
+	"github.com/khezen/bulklog/internal/output"
 )
 
 func redisConvey(red *redis.Pool, pipeKey string, outputs map[string]output.Interface) {

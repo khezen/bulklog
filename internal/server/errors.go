@@ -5,9 +5,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/engine"
-	"github.com/khezen/bulklog/log"
+	"github.com/khezen/bulklog/internal/collection"
+	"github.com/khezen/bulklog/internal/engine"
+	"github.com/khezen/bulklog/internal/log"
 )
 
 var (

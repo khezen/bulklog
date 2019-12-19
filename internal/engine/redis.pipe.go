@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/khezen/bulklog/log"
 	"github.com/gomodule/redigo/redis"
+	"github.com/khezen/bulklog/internal/log"
 )
 
 var (

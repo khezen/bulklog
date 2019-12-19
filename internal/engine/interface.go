@@ -1,8 +1,6 @@
 package engine
 
-import (
-	"github.com/khezen/bulklog/collection"
-)
+import "github.com/khezen/bulklog/internal/collection"
 
 // Engine -
 type Engine interface {

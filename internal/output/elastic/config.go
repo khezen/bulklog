@@ -1,6 +1,6 @@
 package elastic
 
-import "github.com/khezen/bulklog/auth"
+import "github.com/khezen/bulklog/internal/auth"
 
 // Config -
 type Config struct {

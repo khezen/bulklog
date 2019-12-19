@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/khezen/bulklog/collection"
-	"github.com/khezen/bulklog/log"
-	"github.com/khezen/bulklog/output"
+	"github.com/khezen/bulklog/internal/collection"
+	"github.com/khezen/bulklog/internal/log"
+	"github.com/khezen/bulklog/internal/output"
 )
 
 const bufferLimit = 10000

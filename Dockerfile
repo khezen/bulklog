@@ -1,6 +1,6 @@
-FROM golang:1.11.2-alpine3.8 as build
+FROM golang:alpine as build
 # install additional tools
-RUN apk add --no-cache git openssh-client musl-dev gcc curl
+RUN apk add --no-cache musl-dev gcc
 # copy files
 COPY ./ /tmp/app
 # save files
@@ -11,9 +11,9 @@ RUN mkdir /default \
 # compilation
 RUN mkdir -p /usr/local/go/src/github.com/khezen/ \
 &&  mv /tmp/app /usr/local/go/src/github.com/khezen/bulklog \
-&&  go build -o /bin/bulklog github.com/khezen/bulklog
+&&  go build -o /bin/bulklog github.com/khezen/bulklog/cmd/srv
 
-FROM alpine:3.8
+FROM alpine
 COPY --from=build /default/config.yaml /default/config.yaml
 COPY --from=build /entrypoint.sh /entrypoint.sh
 COPY --from=build /bin/bulklog /bin/bulklog

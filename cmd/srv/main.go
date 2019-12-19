@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"github.com/khezen/bulklog/config"
-	"github.com/khezen/bulklog/log"
-	"github.com/khezen/bulklog/server"
+	"github.com/khezen/bulklog/internal/config"
+	"github.com/khezen/bulklog/internal/log"
+	"github.com/khezen/bulklog/internal/server"
 )
 
 const (

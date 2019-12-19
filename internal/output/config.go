@@ -1,8 +1,6 @@
 package output
 
-import (
-	"github.com/khezen/bulklog/output/elastic"
-)
+import "github.com/khezen/bulklog/internal/output/elastic"
 
 // Config -
 type Config struct {
