@@ -3,7 +3,7 @@
 
 Collects, buffers, and outputs logs across multiple sources and destinations.
 
-![icon.png](https://github.com/khezen/bulklog/raw/master/icon.png)
+![.doc/icon.png](https://github.com/khezen/bulklog/raw/master/icon.png)
 
 *bulklog* is written in go and requires little resource.
 
