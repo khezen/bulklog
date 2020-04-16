@@ -91,7 +91,8 @@ provides declarative information about *bulklog* output.
 output:
   elasticsearch:
     enabled: true
-    endpoint: http://localhost:9200
+    endpoint: localhost:9200
+    scheme: http
 #   aws_auth:
 #     access_key_id: changeme
 #     secret_access_key: changeme
