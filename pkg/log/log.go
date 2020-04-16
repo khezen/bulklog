@@ -17,5 +17,5 @@ func Err() *log.Logger {
 
 // Out returns a logger over stdout
 func Out() *log.Logger {
-	return stderr
+	return stdout
 }

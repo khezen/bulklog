@@ -1,0 +1,46 @@
+name: 'pull request'
+on:
+  pull_request:
+    branches:
+      - "master"
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    container: 
+      image: khezen/goci:buster
+    env:
+      WORKDIR: /go/src/github.com/khezen/bulklog
+    steps:
+
+      - name: checkout
+        run: |
+          set -e
+          mkdir -p $WORKDIR
+          git clone -n --depth=1 --no-single-branch https://khezen:${{ secrets.GITHUB_TOKEN }}@github.com/khezen/bulklog $WORKDIR
+          cd $WORKDIR
+          git fetch --depth=1 origin $GITHUB_SHA
+          git checkout FETCH_HEAD
+      
+      - name: linter
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          cd $WORKDIR
+          LINTER=$LINTER$( { golangci-lint run --modules-download-mode vendor || true; } 2>&1 );
+          if [ ${#LINTER} -eq 0 ]; then
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} cmtpr "**Linter:** :heavy_check_mark:"
+          else
+            LINTER_FMT=$( printf "%s\n" "**Linter:** :x:" "\`\`\`sh" "$LINTER" "\`\`\`" )
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} cmtpr "$LINTER_FMT"
+          fi
+          
+      - name: build
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          set -e
+          docker build -t bulklog .
+        
+      - name: docker-rmi
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          set -e
+          docker rmi bulklog

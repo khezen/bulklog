@@ -15,7 +15,7 @@ func New(cfg Config) (*Collection, error) {
 	if err != nil {
 		return nil, fmt.Errorf("RetnetionPeriod.%s", err)
 	}
-	schemas, err := cfg.Schemas()
+	schema, err := cfg.Schema()
 	if err != nil {
 		return nil, fmt.Errorf("Schemas.%s", err)
 	}
@@ -23,7 +23,8 @@ func New(cfg Config) (*Collection, error) {
 		Name:            cfg.Name,
 		FlushPeriod:     flushPeriod,
 		RetentionPeriod: retentionPeriod,
-		Schemas:         schemas,
+		Shards:          cfg.Shards(),
+		Schema:          *schema,
 	}, nil
 }
 
@@ -32,7 +33,8 @@ type Collection struct {
 	Name            Name
 	FlushPeriod     time.Duration
 	RetentionPeriod time.Duration
-	Schemas         []Schema
+	Shards          int
+	Schema          Schema
 }
 
 // Name of a collection
@@ -40,12 +42,8 @@ type Name string
 
 // Schema - document schema
 type Schema struct {
-	Name   SchemaName
 	Fields map[string]Field
 }
-
-// SchemaName -
-type SchemaName string
 
 // Field -
 type Field struct {

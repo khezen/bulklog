@@ -13,16 +13,13 @@ import (
 type Index struct {
 	Pattern  string        `json:"index_patterns"`
 	Settings IndexSettings `json:"settings"`
-	Mappings Mappings      `json:"mappings"`
+	Mappings Mapping       `json:"mappings"`
 }
 
 // IndexSettings -
 type IndexSettings struct {
 	NumberOfShards int `json:"number_of_shards"`
 }
-
-// Mappings - document schema definitions
-type Mappings map[collection.SchemaName]Mapping
 
 // Mapping - document schema definition
 // ref : // ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
@@ -37,22 +34,20 @@ type Field struct {
 }
 
 // RenderElasticIndex - render elasticsearch mapping
-func RenderElasticIndex(collect *collection.Collection, settings IndexSettings) Index {
+func RenderElasticIndex(collect *collection.Collection) Index {
 	index := Index{
-		Pattern:  fmt.Sprintf("%s-*", collect.Name),
-		Settings: settings,
-		Mappings: make(map[collection.SchemaName]Mapping),
-	}
-	for _, schema := range collect.Schemas {
-		mapping := Mapping{
+		Pattern: fmt.Sprintf("%s-*", collect.Name),
+		Settings: IndexSettings{
+			NumberOfShards: collect.Shards,
+		},
+		Mappings: Mapping{
 			Properties: make(map[string]Field),
+		},
+	}
+	for key, field := range collect.Schema.Fields {
+		index.Mappings.Properties[key] = Field{
+			Type: translateType(field),
 		}
-		for key, field := range schema.Fields {
-			mapping.Properties[key] = Field{
-				Type: translateType(field),
-			}
-		}
-		index.Mappings[schema.Name] = mapping
 	}
 	return index
 }
@@ -91,10 +86,9 @@ func RenderIndexName(d collection.Document) string {
 // Digest returns the JSON request to be append to the bulk
 func Digest(d collection.Document) ([]byte, error) {
 	request := make(map[string]interface{})
-	//{ "index" : { "_index" : "logs-2017.05.28", "_type" : "log", "_id" : "1" } }
+	//{ "index" : { "_index" : "logs-2017.05.28", "_id" : "1" } }
 	docDescription := make(map[string]interface{})
 	docDescription["_index"] = RenderIndexName(d)
-	docDescription["_type"] = d.SchemaName
 	docDescription["_id"] = d.ID
 	request["index"] = docDescription
 	body, err := json.Marshal(request)

@@ -2,7 +2,7 @@
 port: 5017
 
 persistence:
-  enabled: true
+  enabled: false
   redis:
     endpoint: redis:6379
     password: ""
@@ -28,6 +28,7 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
+    shards: 1
     schemas:
       log:
         source:

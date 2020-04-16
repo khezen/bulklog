@@ -37,5 +37,8 @@ func (s *Server) serveError(w http.ResponseWriter, r *http.Request, err error) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	statusCode := HTTPStatusCode(err)
 	w.WriteHeader(statusCode)
-	io.WriteString(w, err.Error())
+	_, err = io.WriteString(w, err.Error())
+	if err != nil {
+		log.Err().Printf("serveError.%s\n", err)
+	}
 }
