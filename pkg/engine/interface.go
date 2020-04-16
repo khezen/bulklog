@@ -16,8 +16,8 @@ type Dispatcher interface {
 
 // Collector collects documents
 type Collector interface {
-	Collect(collectionName collection.Name, schemaName collection.SchemaName, docBytes []byte) error
-	CollectBatch(collectionName collection.Name, schemaName collection.SchemaName, docBytesSlice ...[]byte) error
+	Collect(collectionName collection.Name, docBytes []byte) error
+	CollectBatch(collectionName collection.Name, docBytesSlice ...[]byte) error
 }
 
 // Buffer -

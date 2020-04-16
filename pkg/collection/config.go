@@ -9,10 +9,11 @@ import (
 
 // Config -
 type Config struct {
-	Name               Name                        `yaml:"name"`
-	FlushPeriodStr     string                      `yaml:"flush_period"`
-	RetentionPeriodStr string                      `yaml:"retention_period"`
-	SchemasCfg         map[SchemaName]SchemaConfig `yaml:"schemas"`
+	Name               Name         `yaml:"name"`
+	FlushPeriodStr     string       `yaml:"flush_period"`
+	RetentionPeriodStr string       `yaml:"retention_period"`
+	NumberOfShards     int          `yaml:"shards"`
+	SchemaCfg          SchemaConfig `yaml:"schema"`
 }
 
 // SchemaConfig -
@@ -61,38 +62,42 @@ func period(periodStr string) (period time.Duration, err error) {
 	return period, nil
 }
 
-// Schemas - extract schemas config
-func (c *Config) Schemas() ([]Schema, error) {
-	schemas := make([]Schema, 0, len(c.SchemasCfg))
-	for schemaName, fields := range c.SchemasCfg {
-		var ok bool
-		for key, field := range fields {
-			if field.Type == "" {
-				field.Type = String
-				fields[key] = field
+// Shards - returns the number of shards to allocate this collection to
+func (c *Config) Shards() int {
+	if c.NumberOfShards == 0 {
+		return 5
+	}
+	return c.NumberOfShards
+}
+
+// Schema - extract schema config
+func (c *Config) Schema() (*Schema, error) {
+	var ok bool
+	for key, field := range c.SchemaCfg {
+		if field.Type == "" {
+			field.Type = String
+			c.SchemaCfg[key] = field
+		}
+		if _, ok = FieldTypes[field.Type]; !ok {
+			return nil, ErrUnsupportedType
+		}
+		if field.Length < 0 {
+			return nil, ErrLengthLowerThanZero
+		}
+		if field.MaxLength < 0 {
+			return nil, ErrLengthLowerThanZero
+		}
+		if field.Type == DateTime {
+			if field.DateFormat == "" {
+				field.DateFormat = time.RFC3339Nano
+				c.SchemaCfg[key] = field
 			}
-			if _, ok = FieldTypes[field.Type]; !ok {
-				return nil, ErrUnsupportedType
-			}
-			if field.Length < 0 {
-				return nil, ErrLengthLowerThanZero
-			}
-			if field.MaxLength < 0 {
-				return nil, ErrLengthLowerThanZero
-			}
-			if field.Type == DateTime {
-				if field.DateFormat == "" {
-					field.DateFormat = time.RFC3339Nano
-				}
-				if _, ok = dateFormats[field.DateFormat]; !ok {
-					return nil, ErrUnsupportedDateFormat
-				}
+			if _, ok = dateFormats[field.DateFormat]; !ok {
+				return nil, ErrUnsupportedDateFormat
 			}
 		}
-		schemas = append(schemas, Schema{
-			Name:   schemaName,
-			Fields: fields,
-		})
 	}
-	return schemas, nil
+	return &Schema{
+		Fields: c.SchemaCfg,
+	}, nil
 }

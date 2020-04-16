@@ -15,7 +15,6 @@ output:
     enabled: true
     endpoint: elasticsearch:9200
     scheme: http
-    shards: 1
 #   aws_auth:
 #     access_key_id: changeme
 #     secret_access_key: changeme
@@ -28,19 +27,19 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    schemas:
-      log:
-        source:
-          type: string
-          max_length: 64
-        stream: 
-          type: string
-          length: 6
-        event: 
-          type: string
-        time:
-          type: datetime
-          date_format: 2006-01-02T15:04:05.999999999Z07:00
+    shards: 6
+    schema:
+      source:
+        type: string
+        max_length: 64
+      stream: 
+        type: string
+        length: 6
+      event: 
+        type: string
+      time:
+        type: datetime
+        date_format: 2006-01-02T15:04:05.999999999Z07:00
           
 
 # # # # # # # # # # # # # # # # # #

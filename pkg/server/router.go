@@ -22,30 +22,29 @@ func (s *Server) ListenAndServe() {
 func (s *Server) handleCollection(w http.ResponseWriter, r *http.Request) {
 	urlSplit := strings.Split(strings.Trim(strings.ToLower(r.URL.Path), "/"), "/")
 	urlSplitLen := len(urlSplit)
-	if urlSplitLen < 3 {
+	if urlSplitLen < 2 {
 		s.serveError(w, r, ErrPathNotFound)
 		return
 	}
 	collectionName := collection.Name(collection.Name(urlSplit[1]))
-	schemaName := collection.SchemaName(collection.SchemaName(urlSplit[2]))
 	switch urlSplitLen {
-	case 3:
+	case 2:
 		switch r.Method {
 		case http.MethodPost:
-			s.handleCollect(w, r, collectionName, schemaName)
+			s.handleCollect(w, r, collectionName)
 			return
 		default:
 			s.serveError(w, r, ErrWrongMethod)
 			return
 		}
-	case 4:
-		if urlSplit[3] != "batch" {
+	case 3:
+		if urlSplit[2] != "batch" {
 			s.serveError(w, r, ErrPathNotFound)
 			return
 		}
 		switch r.Method {
 		case http.MethodPost:
-			s.handleCollectBatch(w, r, collectionName, schemaName)
+			s.handleCollectBatch(w, r, collectionName)
 			return
 		default:
 			s.serveError(w, r, ErrWrongMethod)

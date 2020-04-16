@@ -21,7 +21,6 @@ var (
 // Elastic is a client for Elasticsearch API
 type Elastic struct {
 	signer                         auth.Signer
-	indeSettings                   IndexSettings
 	bulkEndpoint, templateEndpoint string
 	httpcli                        http.Client
 }
@@ -42,14 +41,8 @@ func New(cfg Config) *Elastic {
 		signer = auth.NewBasicSigner(*cfg.BasicAuth)
 		break
 	}
-	if cfg.Shards <= 0 {
-		cfg.Shards = 1
-	}
 	return &Elastic{
 		signer,
-		IndexSettings{
-			NumberOfShards: cfg.Shards,
-		},
 		bulkEndpoint,
 		createTemplateEndpoint,
 		http.Client{
@@ -98,7 +91,7 @@ func (c *Elastic) Digest(documents []collection.Document) error {
 // Ensure creates a template in Elasticsearch
 func (c *Elastic) Ensure(collection *collection.Collection) error {
 	endpoint := fmt.Sprintf("%s/%s", c.templateEndpoint, collection.Name)
-	elasticIndex := RenderElasticIndex(collection, c.indeSettings)
+	elasticIndex := RenderElasticIndex(collection)
 	elasticIndexBytes, err := json.Marshal(elasticIndex)
 	if err != nil {
 		return fmt.Errorf("json.Marshal.%s", err)
