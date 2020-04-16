@@ -30,7 +30,7 @@ A collection is a set of declarative informations about how *bulklog* should pro
 
 ### Docker
 
-[![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://hub.docker.com/r/khezen/bulklog/)
+[![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://github.com/khezen/bulklog/packages)
 
 ```bash
 docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog docker.pkg.github.com/khezen/bulklog/bulklog:stable
