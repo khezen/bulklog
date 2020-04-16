@@ -30,9 +30,9 @@ jobs:
           docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:stable
           tag=$( echo "$GITHUB_REF" | sed 's/refs\/tags\///g' )
           docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
-          tag=${tag::-2}
+          tag=${tag%.?}
           docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
-          tag=${tag::-2}
+          tag=${tag%.?}
           docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
       
       - name: docker-login
