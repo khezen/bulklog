@@ -112,7 +112,7 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    schemas: {}
+    schema: {}
 ```
 
 *bulklog* is schema free but we encourage you to provide some base structure since it might enbale output destination to process data more efficiently.
@@ -148,11 +148,7 @@ Even in the case above, *bulklog* remains schema free enabling log decoration wi
   * if an output is unavailable, **retention_period** set how long *bulklog* tries to output data to this output
   * if the output is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other outputs.
 * **shards**: the number of shards to allocate this index to. Check [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/scale.html) to learn more about it.
-* **schemas**: `{map of schema configurations by schema name}`
-
-#### schema
-
-map of fields by field name
+* **schema**: `{map of fields by field name}`
 
 #### field
 
