@@ -48,16 +48,12 @@ func period(periodStr string) (period time.Duration, err error) {
 	switch unit {
 	case "hours":
 		period = time.Duration(quantity * float64(time.Hour))
-		break
 	case "minutes":
 		period = time.Duration(quantity * float64(time.Minute))
-		break
 	case "seconds":
 		period = time.Duration(quantity * float64(time.Second))
-		break
 	case "milliseonds":
 		period = time.Duration(quantity * float64(time.Millisecond))
-		break
 	}
 	return period, nil
 }

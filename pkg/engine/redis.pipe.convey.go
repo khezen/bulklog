@@ -118,6 +118,7 @@ func presetRedisConvey(
 		if err != nil {
 			log.Err().Printf("getRedisPipeIteration.%s)\n", err)
 			waitFor = retryPeriod - time.Since(latestTryAt)
+			time.Sleep(waitFor)
 			continue
 		}
 		waitFor = retryPeriod*time.Duration(math.Pow(2, float64(iteration))) - time.Since(latestTryAt)
@@ -138,7 +139,7 @@ func presetRedisConvey(
 		if waitFor <= 0 {
 			continue
 		}
-		timer = time.NewTimer(waitFor)
+		timer.Reset(waitFor)
 		<-timer.C
 	}
 }
@@ -161,7 +162,6 @@ func redisConveyAll(red *redis.Pool, pipeKeyPrefix string, outputs map[string]ou
 	)
 	for i := 0; i < maxTries; i++ {
 		for cursor != 0 || !success {
-			success = false
 			conn := red.Get()
 			scanResultsI, err = conn.Do("SCAN", cursor, "MATCH", pattern)
 			conn.Close()
