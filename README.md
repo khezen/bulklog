@@ -40,7 +40,6 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog docker.pkg.github.com/kheze
 
 * `latest`
 * `2.0.0`, `2.0`, `2`, `stable`
-* `1.0.10`, `1.0`, `1`
 
 
 #### ENV
