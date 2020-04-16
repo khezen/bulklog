@@ -1,0 +1,52 @@
+name: 'push to master'
+on:
+  release:
+    types:
+      - created
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container: 
+      image: khezen/goci:buster
+    env:
+      WORKDIR: /go/src/github.com/khezen/bulklog
+    steps:
+
+      - name: checkout
+        run: |
+          set -e
+          mkdir -p $WORKDIR
+          git clone -n --depth=1 --no-single-branch https://khezen:${{ secrets.GITHUB_TOKEN }}@github.com/khezen/bulklog $WORKDIR
+          cd $WORKDIR
+          git fetch --depth=1 origin $GITHUB_SHA
+          git checkout FETCH_HEAD
+          
+      - name: build
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          set -e
+          docker build -t docker.pkg.github.com/khezen/bulklog:latest .
+          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:stable
+          tag=$( echo "$GITHUB_REF" | sed 's/refs\/heads\///g' )
+          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+          tag=${tag::-2}
+          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+          tag=${tag::-2}
+          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+      
+      - name: docker-login
+        env:
+          DOCKER_USER: khezen
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin docker.pkg.github.com
+
+      - name: docker-push
+        working-directory: ${{ env.WORKDIR }}
+        run: docker push docker.pkg.github.com/khezen/bulklog
+
+      - name: docker-logout
+        run: docker logout
+
+      - name: service-docker-rmi
+        working-directory: ${{ env.WORKDIR }}
+        run: docker rmi docker.pkg.github.com/khezen/bulklog
