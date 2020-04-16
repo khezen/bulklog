@@ -36,10 +36,8 @@ func New(cfg Config) *Elastic {
 	switch {
 	case cfg.AWSAuth != nil:
 		signer = auth.NewAWSSigner(*cfg.AWSAuth, "es")
-		break
 	case cfg.BasicAuth != nil:
 		signer = auth.NewBasicSigner(*cfg.BasicAuth)
-		break
 	}
 	return &Elastic{
 		signer,
