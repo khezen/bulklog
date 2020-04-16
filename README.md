@@ -16,13 +16,9 @@ Collects, buffers, and outputs logs across multiple sources and destinations.
 
 *bulklog* tries to structure data as JSON since it has enough structure to be accessible while providing felxibility.
 
-### Schema
-
-A Schema provides declarative informations about how *bulklog* should process data.
-
 ### Collection
 
-A collection is a set of schemas.
+A collection is a set of declarative informations about how *bulklog* should process data.
 
 ### Output
 
@@ -43,7 +39,9 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog khezen/bulklog:stable
 #### Supported tags
 
 * `latest`
-* `1.0.10`, `1.0`, `1`, `stable`
+* `2.0.0`, `2.0`, `2`, `stable`
+* `1.0.10`, `1.0`, `1`
+
 
 #### ENV
 
@@ -93,8 +91,8 @@ provides declarative information about *bulklog* output.
 output:
   elasticsearch:
     enabled: true
-    endpoint: http://localhost:9200
-    shards: 1
+    endpoint: localhost:9200
+    scheme: http
 #   aws_auth:
 #     access_key_id: changeme
 #     secret_access_key: changeme
@@ -103,6 +101,8 @@ output:
 #     username: elastic
 #     password: changeme
 ```
+
+*from version 2.0.0 bulklog supports Elasticsearch 7.0.0 and above*
 
 ### Collections
 
@@ -113,8 +113,7 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    schemas:
-      log: {}
+    schema: {}
 ```
 
 *bulklog* is schema free but we encourage you to provide some base structure since it might enbale output destination to process data more efficiently.
@@ -124,19 +123,19 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    schemas:
-      log:
-        source: 
-          type: string
-          max_length: 64
-        stream: 
-          type: string
-          length: 6
-        event: 
-          type: string
-        time:
-          type: datetime
-          date_format: 2006-01-02T15:04:05.999999999Z07:00
+    shards: 6
+    schema:
+      source: 
+        type: string
+        max_length: 64
+      stream: 
+        type: string
+        length: 6
+      event: 
+        type: string
+      time:
+        type: datetime
+        date_format: 2006-01-02T15:04:05.999999999Z07:00
 ```
 
 Even in the case above, *bulklog* remains schema free enabling log decoration with additional field.
@@ -149,11 +148,8 @@ Even in the case above, *bulklog* remains schema free enabling log decoration wi
 * **retention_period**: `{duration}`
   * if an output is unavailable, **retention_period** set how long *bulklog* tries to output data to this output
   * if the output is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other outputs.
-* **schemas**: `{map of schema configurations by schema name}`
-
-#### schema
-
-map of fields by field name
+* **shards**: the number of shards to allocate this index to. Check [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/scale.html) to learn more about it.
+* **schema**: `{map of fields by field name}`
 
 #### field
 
@@ -170,7 +166,7 @@ map of fields by field name
 ### push document
 
 ```http
-POST /v1/{collectionName}/{schemaName} HTTP/1.1
+POST bulklog/v1/{collectionName} HTTP/1.1
 Content-Type: application/json
 {
   ...
@@ -182,7 +178,7 @@ HTTP/1.1 200 OK
 example:
 
 ```http
-POST /v1/logs/log HTTP/1.1
+POST bulklog/v1/logs HTTP/1.1
 Content-Type: application/json
 {
   "source":"service1",
@@ -194,7 +190,7 @@ Content-Type: application/json
 ### push documents in batches
 
 ```http
-POST /v1/{collectionName}/{schemaName}/batch HTTP/1.1
+POST /v1/{collectionName}/batch HTTP/1.1
 Content-Type: application/json
 {...}
 {...}
@@ -205,7 +201,7 @@ HTTP/1.1 200 OK
 example:
 
 ```http
-POST /v1/logs/log/batch HTTP/1.1
+POST bulklog/v1/logs/batch HTTP/1.1
 Content-Type: application/json
 {"source":"service1","stream": "stderr","event": "divizion by zero","time" : "2019-01-13T19:30:12"}
 {"source":"service1","stream": "stdout","event": "successfully processed","time" : "2019-01-13T19:35:12"}
@@ -216,13 +212,13 @@ HTTP/1.1 200 OK
 ### health
 
 ```http
-GET /liveness HTTP/1.1
+GET bulklog/liveness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```
 
 ```http
-GET /readiness HTTP/1.1
+GET bulklog/readiness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```

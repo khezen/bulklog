@@ -8,14 +8,14 @@ import (
 	"github.com/khezen/bulklog/pkg/collection"
 )
 
-// POST /v1/{collection}/{schema}
-func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request, collectionName collection.Name, schemaName collection.SchemaName) {
+// POST /v1/{collection}
+func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request, collectionName collection.Name) {
 	docBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		s.serveError(w, r, err)
 		return
 	}
-	err = s.engine.Collect(collectionName, schemaName, docBytes)
+	err = s.engine.Collect(collectionName, docBytes)
 	if err != nil {
 		s.serveError(w, r, err)
 		return
@@ -23,8 +23,8 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request, collectio
 	w.WriteHeader(http.StatusOK)
 }
 
-// POST /v1/{collection}/{schemaName}/batch
-func (s *Server) handleCollectBatch(w http.ResponseWriter, r *http.Request, collectionName collection.Name, schemaName collection.SchemaName) {
+// POST /v1/{collection}/batch
+func (s *Server) handleCollectBatch(w http.ResponseWriter, r *http.Request, collectionName collection.Name) {
 	docsBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		s.serveError(w, r, err)
@@ -43,7 +43,7 @@ func (s *Server) handleCollectBatch(w http.ResponseWriter, r *http.Request, coll
 			break
 		}
 	}
-	err = s.engine.CollectBatch(collectionName, schemaName, docBytesSlice...)
+	err = s.engine.CollectBatch(collectionName, docBytesSlice...)
 	if err != nil {
 		s.serveError(w, r, err)
 		return

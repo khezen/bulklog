@@ -18,12 +18,11 @@ type Document struct {
 	ID             uuid.UUID
 	PostedAt       time.Time
 	CollectionName Name
-	SchemaName     SchemaName
 	Body           []byte
 }
 
 // NewDocument creates a document from es index, document type and its body
-func NewDocument(collectionName Name, schemaName SchemaName, body []byte) (*Document, error) {
+func NewDocument(collectionName Name, body []byte) (*Document, error) {
 	var bodyMap map[string]interface{}
 	err := json.Unmarshal(body, &bodyMap)
 	if err != nil {
@@ -39,7 +38,6 @@ func NewDocument(collectionName Name, schemaName SchemaName, body []byte) (*Docu
 		ID:             uuid.New(),
 		PostedAt:       postedAt,
 		CollectionName: collectionName,
-		SchemaName:     schemaName,
 		Body:           body,
 	}, nil
 }

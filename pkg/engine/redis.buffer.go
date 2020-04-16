@@ -140,8 +140,6 @@ func (b *redisBuffer) Flush() (err error) {
 		b.flushedAt = now
 		return
 	}
-	pipeID = uuid.New()
-	pipeKey = fmt.Sprintf("%s.%s", b.pipeKeyPrefix, pipeID)
 	err = conn.Send("MULTI")
 	if err != nil {
 		return fmt.Errorf("MULTI.%s", err)

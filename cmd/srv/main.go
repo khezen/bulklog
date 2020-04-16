@@ -17,7 +17,6 @@ var (
 	quit  chan error
 	cfg   *config.Config
 	serv  *server.Server
-	err   error
 	timer *time.Timer
 	i     int
 )
