@@ -26,14 +26,14 @@ jobs:
         working-directory: ${{ env.WORKDIR }}
         run: |
           set -e
-          docker build -t docker.pkg.github.com/khezen/bulklog:latest .
-          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:stable
+          docker build -t docker.pkg.github.com/khezen/bulklog/bulklog:latest .
+          docker tag docker.pkg.github.com/khezen/bulklog/bulklog:latest docker.pkg.github.com/khezen/bulklog/bulklog:stable
           tag=$( echo "$GITHUB_REF" | sed 's/refs\/tags\///g' )
-          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+          docker tag docker.pkg.github.com/khezen/bulklog/bulklog:latest docker.pkg.github.com/khezen/bulklog/bulklog:$tag
           tag=${tag%.?}
-          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+          docker tag docker.pkg.github.com/khezen/bulklog/bulklog:latest docker.pkg.github.com/khezen/bulklog/bulklog:$tag
           tag=${tag%.?}
-          docker tag docker.pkg.github.com/khezen/bulklog:latest docker.pkg.github.com/khezen/bulklog:$tag
+          docker tag docker.pkg.github.com/khezen/bulklog/bulklog:latest docker.pkg.github.com/khezen/bulklog/bulklog:$tag
       
       - name: docker-login
         env:
@@ -43,11 +43,11 @@ jobs:
 
       - name: docker-push
         working-directory: ${{ env.WORKDIR }}
-        run: docker push docker.pkg.github.com/khezen/bulklog
+        run: docker push docker.pkg.github.com/khezen/bulklog/bulklog
 
       - name: docker-logout
         run: docker logout
 
       - name: service-docker-rmi
         working-directory: ${{ env.WORKDIR }}
-        run: docker rmi docker.pkg.github.com/khezen/bulklog
+        run: docker rmi docker.pkg.github.com/khezen/bulklog/bulklog

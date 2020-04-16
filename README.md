@@ -33,7 +33,7 @@ A collection is a set of declarative informations about how *bulklog* should pro
 [![khezen/bulklog](https://images.microbadger.com/badges/image/khezen/bulklog.svg)](https://hub.docker.com/r/khezen/bulklog/)
 
 ```bash
-docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog docker.pkg.github.com/khezen/bulklog:stable
+docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog docker.pkg.github.com/khezen/bulklog/bulklog:stable
 ```
 
 #### Supported tags
@@ -57,7 +57,7 @@ Deploy bulklog to a kubernetes cluster using Helm.
 
 ```bash
 helm repo add khezen https://khezen.github.com/charts
-helm install docker.pkg.github.com/khezen/bulklog --name bulklog
+helm install docker.pkg.github.com/khezen/bulklog/bulklog --name bulklog
 ```
 
 ---
