@@ -18,7 +18,8 @@ jobs:
           mkdir -p $WORKDIR
           git clone -n --depth=1 --no-single-branch https://khezen:${{ secrets.GITHUB_TOKEN }}@github.com/khezen/bulklog $WORKDIR
           cd $WORKDIR
-          git fetch --depth=1 origin $GITHUB_SHA
+          tag=$( echo "$GITHUB_REF" | sed 's/refs\/heads\///g' )
+          git fetch --depth=1 origin $tag
           git checkout FETCH_HEAD
           
       - name: build
