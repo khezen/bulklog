@@ -166,7 +166,7 @@ Even in the case above, *bulklog* remains schema free enabling log decoration wi
 ### push document
 
 ```http
-POST /v1/{collectionName} HTTP/1.1
+POST bulklog/v1/{collectionName} HTTP/1.1
 Content-Type: application/json
 {
   ...
@@ -178,7 +178,7 @@ HTTP/1.1 200 OK
 example:
 
 ```http
-POST /v1/logs HTTP/1.1
+POST bulklog/v1/logs HTTP/1.1
 Content-Type: application/json
 {
   "source":"service1",
@@ -201,7 +201,7 @@ HTTP/1.1 200 OK
 example:
 
 ```http
-POST /v1/logs/batch HTTP/1.1
+POST bulklog/v1/logs/batch HTTP/1.1
 Content-Type: application/json
 {"source":"service1","stream": "stderr","event": "divizion by zero","time" : "2019-01-13T19:30:12"}
 {"source":"service1","stream": "stdout","event": "successfully processed","time" : "2019-01-13T19:35:12"}
@@ -212,13 +212,13 @@ HTTP/1.1 200 OK
 ### health
 
 ```http
-GET /liveness HTTP/1.1
+GET bulklog/liveness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```
 
 ```http
-GET /readiness HTTP/1.1
+GET bulklog/readiness HTTP/1.1
 
 HTTP/1.1 200 OK
 ```

@@ -86,7 +86,7 @@ func RenderIndexName(d collection.Document) string {
 // Digest returns the JSON request to be append to the bulk
 func Digest(d collection.Document) ([]byte, error) {
 	request := make(map[string]interface{})
-	//{ "index" : { "_index" : "logs-2017.05.28", "_type" : "log", "_id" : "1" } }
+	//{ "index" : { "_index" : "logs-2017.05.28", "_id" : "1" } }
 	docDescription := make(map[string]interface{})
 	docDescription["_index"] = RenderIndexName(d)
 	docDescription["_id"] = d.ID
