@@ -2,7 +2,7 @@ name: 'push to master'
 on:
   release:
     types:
-      - created
+      - published
 jobs:
   publish:
     runs-on: ubuntu-latest
