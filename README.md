@@ -16,13 +16,9 @@ Collects, buffers, and outputs logs across multiple sources and destinations.
 
 *bulklog* tries to structure data as JSON since it has enough structure to be accessible while providing felxibility.
 
-### Schema
-
-A Schema provides declarative informations about how *bulklog* should process data.
-
 ### Collection
 
-A collection is a set of schemas.
+A collection is a set of declarative informations about how *bulklog* should process data.
 
 ### Output
 
