@@ -148,9 +148,11 @@ Even in the case above, *bulklog* remains schema free enabling log decoration wi
 * **retention_period**: `{duration}`
   * if an output is unavailable, **retention_period** set how long *bulklog* tries to output data to this output
   * if the output is unavailable for too long, **retention_period** ensure that *bulklog* will not accumulate too much data and will be able to serve other outputs.
-* **shards**: the number of shards to allocate this index to. Check [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/scale.html) to learn more about it.
+* **shards**: the number of shards to allocate this collection to
+* **replicas**: the number of replicas to allocate this collection to
 * **schema**: `{map of fields by field name}`
 
+*[Learn more about Elasticsearch sharding and replication](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/scale.html)*.
 #### field
 
 * **type**: `{field type}`
