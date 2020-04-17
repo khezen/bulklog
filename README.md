@@ -56,7 +56,7 @@ Deploy bulklog to a kubernetes cluster using Helm.
 
 ```bash
 helm repo add khezen https://khezen.github.com/charts
-helm install docker.pkg.github.com/khezen/bulklog/bulklog --name bulklog
+helm install khezen/bulklog --name bulklog
 ```
 
 ---
