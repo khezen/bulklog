@@ -39,7 +39,7 @@ docker run -p 5017:5017 -v /etc/bulklog:/etc/bulklog docker.pkg.github.com/kheze
 #### Supported tags
 
 * `latest`
-* `2.0.0`, `2.0`, `2`, `stable`
+* `2.0.1`, `2.0`, `2`, `stable`
 
 
 #### ENV
@@ -122,7 +122,8 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    shards: 6
+    shards: 5
+    replicas: 1
     schema:
       source: 
         type: string

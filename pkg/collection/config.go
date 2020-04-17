@@ -13,6 +13,7 @@ type Config struct {
 	FlushPeriodStr     string       `yaml:"flush_period"`
 	RetentionPeriodStr string       `yaml:"retention_period"`
 	NumberOfShards     int          `yaml:"shards"`
+	NumberOfReplicas   int          `yaml:"replicas"`
 	SchemaCfg          SchemaConfig `yaml:"schema"`
 }
 
@@ -64,6 +65,11 @@ func (c *Config) Shards() int {
 		return 5
 	}
 	return c.NumberOfShards
+}
+
+// Replicas - returns the number of replicas to allocate this collection to
+func (c *Config) Replicas() int {
+	return c.NumberOfReplicas
 }
 
 // Schema - extract schema config

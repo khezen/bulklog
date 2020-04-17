@@ -28,7 +28,8 @@ collections:
   - name: logs
     flush_period: 5 seconds # hours|minutes|seconds|milliseconds
     retention_period: 45 minutes
-    shards: 1
+    shards: 5
+    replicas: 1
     schemas:
       log:
         source:

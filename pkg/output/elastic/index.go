@@ -18,7 +18,8 @@ type Index struct {
 
 // IndexSettings -
 type IndexSettings struct {
-	NumberOfShards int `json:"number_of_shards"`
+	NumberOfShards   int `json:"number_of_shards"`
+	NumberOfReplicas int `json:"number_of_replicas"`
 }
 
 // Mapping - document schema definition
@@ -38,7 +39,8 @@ func RenderElasticIndex(collect *collection.Collection) Index {
 	index := Index{
 		Pattern: fmt.Sprintf("%s-*", collect.Name),
 		Settings: IndexSettings{
-			NumberOfShards: collect.Shards,
+			NumberOfShards:   collect.Shards,
+			NumberOfReplicas: collect.Replicas,
 		},
 		Mappings: Mapping{
 			Properties: make(map[string]Field),

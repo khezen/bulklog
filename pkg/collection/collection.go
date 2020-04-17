@@ -24,6 +24,7 @@ func New(cfg Config) (*Collection, error) {
 		FlushPeriod:     flushPeriod,
 		RetentionPeriod: retentionPeriod,
 		Shards:          cfg.Shards(),
+		Replicas:        cfg.Replicas(),
 		Schema:          *schema,
 	}, nil
 }
@@ -34,6 +35,7 @@ type Collection struct {
 	FlushPeriod     time.Duration
 	RetentionPeriod time.Duration
 	Shards          int
+	Replicas        int
 	Schema          Schema
 }
 
